@@ -1,0 +1,4 @@
+First of all, unzip bigtyl.dat.gz and meantyl.dat.gz
+
+  gunzip bigtyl.dat.gz
+  gunzip meantyl.dat.gz
