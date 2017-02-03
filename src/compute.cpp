@@ -101,6 +101,10 @@ double compute_WAFOM64(const DigitalNet<uint64_t>& dn,
         min = c_min;
         index = lround(c * 10);
     }
+#if defined(DEBUG)
+    cout << "index = " << dec << index << endl;
+    cout << "read tyl file:" << path << endl;
+#endif
     int r = read_tyl(path, min, index, tyl);
     if (r != 0) {
         cerr << "read_tyl_error:" << endl;
@@ -221,6 +225,10 @@ namespace {
     {
         const char * mode = "rb";
         FILE *fp = fopen(filename.c_str(), mode);
+        if (fp == NULL) {
+            cout << "can't open file:" << filename << endl;
+            return -1;
+        }
         int index = c - min;
         fseek(fp, sizeof(tylsonia_t) * index, 0);
         size_t count = fread(&tyl, sizeof(tylsonia_t), 1, fp);

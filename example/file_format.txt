@@ -1,0 +1,9 @@
+FILE FORMAT
+===========
+The file format of digital net data is as follows:
+  1st item: 64 fixed
+  2nd item: s
+  3rd item: m
+  from 4th: s * m number of 64-bit unsigned integers
+  remain:   ignored
+The delimiters of item are whitespaces and/or newlines.

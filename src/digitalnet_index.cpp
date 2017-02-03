@@ -24,6 +24,8 @@
 #include <cerrno>
 #include <getopt.h> // <cgetopt> is not accepted by gcc
 
+//#define DEBUG
+
 using namespace std;
 
 struct cmd_option {
@@ -70,12 +72,15 @@ int main(int argc, char * argv[])
         dn.showStatus(cout);
     }
     //print_dn<uint64_t>(cout, dn);
-    if (opt.wafom && (opt.c < -50 || opt.c > 50)) {
+    if (opt.wafom && (opt.c < -5.0 || opt.c > 5.0)) {
         cout << "c should be in the range -5.0 <= c <= 5.0" << endl;
         return -1;
     }
+#if defined(DEBUG)
+    cout << "c = " << dec << opt.c << endl;
+#endif
     if (opt.wafom) {
-        double c = opt.c / 10.0;
+        double c = opt.c;
         double wafom = compute_WAFOM(dn, BIG, c);
         cout << "c = " << opt.c << endl;
         cout << "wafom = " << fixed << setprecision(20) << wafom << endl;
@@ -131,6 +136,10 @@ static bool parse(cmd_option& opt, int argc, char * argv[])
         case 'w':
             opt.wafom = true;
             opt.c = strtod(optarg, NULL);
+            if (errno) {
+                error = true;
+                cout << "c must be a number" << endl;
+            }
             break;
         case 'm':
             opt.meanwafom = true;
@@ -171,10 +180,10 @@ static bool parse(cmd_option& opt, int argc, char * argv[])
 
 static void show_error_message(string& pgm)
 {
-    cout << pgm << " [-w c] [-m] [-t] digital-net-datafile" << endl;
-    cout << "\t--wafom, -w\t\tcompute wafom of digitalnet for specified c"
-         << endl;
+    cout << pgm << " [-t] [-m] [-w c] digital-net-datafile" << endl;
+    cout << "\t--tvalue, -t\t\tcompute t-value of digitalnet" << endl;
     cout << "\t--mean-wafom, -m\tcompute mean wafom of digitalnet"
          << endl;
-    cout << "\t--tvalue, -t\t\tcompute t-value of digitalnet" << endl;
+    cout << "\t--wafom, -w\t\tcompute wafom of digitalnet for specified c"
+         << endl;
 }
