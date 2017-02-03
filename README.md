@@ -41,7 +41,7 @@ An example of digital net data file is in example directory.
 
     digitalnet_index -t -m example/nxlw_s4_m10.txt
 
-The last two item of the file is mean-wafom and t-value, and
+The last two items of the file are mean-wafom and t-value, and
 you can check them with the output.
 
 FILE FORMAT
