@@ -193,4 +193,14 @@ static inline int getBit(uint64_t x, uint32_t pos)
     return (x >> pos) & 1;
 }
 
+static inline int tailingZeroBit(uint32_t x)
+{
+    return(ones((x & -x) - 1));
+}
+
+static inline int tailingZeroBit(uint64_t x)
+{
+    return(ones((x & -x) - 1));
+}
+
 #endif // BIT_OPERATOR_H

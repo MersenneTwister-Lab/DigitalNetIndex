@@ -86,15 +86,15 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-apple-darwin15.6.0
-host_triplet = x86_64-apple-darwin15.6.0
+build_triplet = x86_64-apple-darwin16.6.0
+host_triplet = x86_64-apple-darwin16.6.0
 bin_PROGRAMS = digitalnet_index$(EXEEXT)
+check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
-	$(top_srcdir)/m4/m4_ax_boost_base.m4 \
 	$(top_srcdir)/m4/m4_ax_gcc_builtin.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -112,6 +112,12 @@ am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
 	$(am__objects_1)
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
 digitalnet_index_LDADD = $(LDADD)
+am_test_combination_OBJECTS = test_combination.$(OBJEXT)
+test_combination_OBJECTS = $(am_test_combination_OBJECTS)
+test_combination_LDADD = $(LDADD)
+am_test_gray_OBJECTS = test_gray.$(OBJEXT)
+test_gray_OBJECTS = $(am_test_gray_OBJECTS)
+test_gray_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -153,8 +159,10 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(digitalnet_index_SOURCES)
-DIST_SOURCES = $(digitalnet_index_SOURCES)
+SOURCES = $(digitalnet_index_SOURCES) $(test_combination_SOURCES) \
+	$(test_gray_SOURCES)
+DIST_SOURCES = $(digitalnet_index_SOURCES) $(test_combination_SOURCES) \
+	$(test_gray_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -189,9 +197,7 @@ AM_DEFAULT_VERBOSITY = 1
 AUTOCONF = ${SHELL} /Users/saito/git/mkt/DigitalNetIndex/missing autoconf
 AUTOHEADER = ${SHELL} /Users/saito/git/mkt/DigitalNetIndex/missing autoheader
 AUTOMAKE = ${SHELL} /Users/saito/git/mkt/DigitalNetIndex/missing automake-1.15
-AWK = gawk
-BOOST_CPPFLAGS = -I/opt/local/include
-BOOST_LDFLAGS = -L/opt/local/lib
+AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = 
@@ -211,7 +217,7 @@ EXEEXT =
 GREP = /usr/bin/grep
 HAVE_CXX11 = 1
 HAVE_CXX14 = 1
-INSTALL = /opt/local/bin/ginstall -c
+INSTALL = /usr/local/opt/coreutils/libexec/gnubin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
@@ -221,20 +227,20 @@ LIBOBJS =
 LIBS = 
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /Users/saito/git/mkt/DigitalNetIndex/missing makeinfo
-MKDIR_P = /opt/local/bin/gmkdir -p
+MKDIR_P = /usr/local/opt/coreutils/libexec/gnubin/mkdir -p
 OBJEXT = o
 PACKAGE = digitalnetindex
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = digitalnetindex
-PACKAGE_STRING = digitalnetindex 0.1
+PACKAGE_STRING = digitalnetindex 0.2
 PACKAGE_TARNAME = digitalnetindex
 PACKAGE_URL = 
-PACKAGE_VERSION = 0.1
+PACKAGE_VERSION = 0.2
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.1
+VERSION = 0.2
 abs_builddir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_srcdir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_top_builddir = /Users/saito/git/mkt/DigitalNetIndex
@@ -247,10 +253,10 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-apple-darwin15.6.0
+build = x86_64-apple-darwin16.6.0
 build_alias = 
 build_cpu = x86_64
-build_os = darwin15.6.0
+build_os = darwin16.6.0
 build_vendor = apple
 builddir = .
 datadir = ${datarootdir}
@@ -258,10 +264,10 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-apple-darwin15.6.0
+host = x86_64-apple-darwin16.6.0
 host_alias = 
 host_cpu = x86_64
-host_os = darwin15.6.0
+host_os = darwin16.6.0
 host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
@@ -286,8 +292,15 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-digital_header = DigitalNet.h digital.h bit_operator.h powtwo.h config.h
+digital_header = DigitalNet.h digital.h bit_operator.h powtwo.h config.h \
+combination.hpp
+
 compute_header = compute.h gray.hpp matrix_rank.hpp kahan.hpp
+
+#executable files of make check (sh file ok)
+TEST = test_combination test_gray
+test_combination_SOURCES = test_combination.cpp combination.hpp
+test_gray_SOURCES = test_gray.cpp
 digitalnet_index_SOURCES = digitalnet_index.cpp \
 	DigitalNet.cpp $(digital_header) \
 	compute.cpp $(compute_header)
@@ -385,9 +398,20 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+clean-checkPROGRAMS:
+	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
 digitalnet_index$(EXEEXT): $(digitalnet_index_OBJECTS) $(digitalnet_index_DEPENDENCIES) $(EXTRA_digitalnet_index_DEPENDENCIES) 
 	@rm -f digitalnet_index$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(digitalnet_index_OBJECTS) $(digitalnet_index_LDADD) $(LIBS)
+
+test_combination$(EXEEXT): $(test_combination_OBJECTS) $(test_combination_DEPENDENCIES) $(EXTRA_test_combination_DEPENDENCIES) 
+	@rm -f test_combination$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_combination_OBJECTS) $(test_combination_LDADD) $(LIBS)
+
+test_gray$(EXEEXT): $(test_gray_OBJECTS) $(test_gray_DEPENDENCIES) $(EXTRA_test_gray_DEPENDENCIES) 
+	@rm -f test_gray$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_gray_OBJECTS) $(test_gray_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -398,6 +422,8 @@ distclean-compile:
 include ./$(DEPDIR)/DigitalNet.Po
 include ./$(DEPDIR)/compute.Po
 include ./$(DEPDIR)/digitalnet_index.Po
+include ./$(DEPDIR)/test_combination.Po
+include ./$(DEPDIR)/test_gray.Po
 
 .cpp.o:
 	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -496,6 +522,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(PROGRAMS) config.h
 installdirs:
@@ -534,7 +561,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -601,21 +629,21 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
 
-.MAKE: all install-am install-strip
+.MAKE: all check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
-	distclean distclean-compile distclean-generic distclean-hdr \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-hdr distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

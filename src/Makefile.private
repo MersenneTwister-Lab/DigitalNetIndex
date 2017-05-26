@@ -1,0 +1,41 @@
+#-*- Makefile -*-
+#WARN = -Wall -Wextra
+WARN = -Wall -Wextra -fsanitize=address -g
+
+OPTI = -O3
+CPP = g++
+#CPP = clang++
+#DEBUG = -DDEBUG
+
+CPPFLAGS = -std=c++11 $(OPTI) $(WARN) $(DEBUG)
+
+
+all: test_combination test_gray test_digitalnet test_calc_wafom \
+test_calc_cvmean test_calc_tvalue
+
+test_combination: test_combination.cpp combination.hpp
+	$(CPP) $(CPPFLAGS) -o $@ test_combination.cpp
+
+test_gray: test_gray.cpp grayindex.hpp
+	$(CPP) $(CPPFLAGS) -o $@ test_gray.cpp
+
+test_digitalnet: test_digitalnet.cpp DigitalNet.hpp DigitalNet.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_digitalnet.cpp DigitalNet.cpp
+
+test_calc_wafom: test_calc_wafom.cpp DigitalNet.hpp DigitalNet.cpp \
+	calc_wafom.hpp calc_wafom_lookup.hpp calc_wafom_lookup.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_calc_wafom.cpp DigitalNet.cpp \
+	calc_wafom_lookup.cpp
+
+test_calc_cvmean: test_calc_cvmean.cpp cvmean.cpp cvmean.h
+	$(CPP) $(CPPFLAGS) -o $@ test_calc_cvmean.cpp cvmean.cpp
+
+test_calc_tvalue: test_calc_tvalue.cpp calc_tvalue.hpp \
+	DigitalNet.hpp DigitalNet.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_calc_tvalue.cpp DigitalNet.cpp
+
+.cpp.o:
+	$(CPP) $(CPPFLAGS)  -c $<
+
+clean:
+	rm -rf *.o *~ *.dSYM

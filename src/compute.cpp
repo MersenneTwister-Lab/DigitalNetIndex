@@ -17,11 +17,11 @@
 #include "config.h"
 #include "compute.h"
 #include "kahan.hpp"
-#include "gray.hpp"
-#include "powtwo.h"
+#include "grayindex.hpp"
 #include "matrix_rank.hpp"
 #include "bit_operator.h"
 #include "DigitalNet.h"
+#include "combination.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <vector>
@@ -32,46 +32,32 @@ using namespace std;
 
 namespace {
 
-#define TYL_MAX 65536
+    /** element length for look up table */
+    const int element_length = 16;
+    /** factor of WAFOM 1.0 or 2.0 */
+    const double factor = 1.0;
 
-    struct TYLSONIA_T {
-        double data[4][TYL_MAX];
+#define LOOKUP_MAX 65536
+
+    struct lookup_t {
+        int n;
+        double c;
+        double data[4][LOOKUP_MAX];
     };
-    typedef struct TYLSONIA_T tylsonia_t;
 
     const int c_min = -50;
-    const int c_max = 50;
+    //const int c_max = 50;
     const int cv_min = 4;
-    const int cv_max = 32;
+    //const int cv_max = 32;
 
-    int read_tyl(string& filename,
-                 int min,
-                 int c,
-                 tylsonia_t& tyl);
+    void make_lookup(double c, int n, lookup_t& tyl);
 
-    double tylsonia64(const uint64_t x[],
-                      int size,
-                      const tylsonia_t& table);
+    template<typename U>
+    double lookup64(const U x[], int size, const lookup_t& table);
 
     double compute_WAFOM64(const DigitalNet<uint64_t>& dn,
-                           const tylsonia_t& tyl);
+                           const lookup_t& table);
 
-    class Combination {
-    public:
-        Combination(int size);
-        ~Combination();
-        void reset(int init);
-        bool next();
-        // no range check
-        int operator[](int p) const {
-            return data[p];
-        }
-        void print(std::ostream& os);
-    private:
-        int size;
-        int init;
-        int * data;
-    };
 }
 
 
@@ -79,7 +65,7 @@ double compute_WAFOM64(const DigitalNet<uint64_t>& dn,
                        enum wafom_kind kind,
                        double c)
 {
-    tylsonia_t tyl;
+    lookup_t tyl;
     string path;
     const char * cstr = DigitalNet<uint64_t>::getDataPath();
     if (cstr == NULL) {
@@ -116,20 +102,14 @@ double compute_WAFOM64(const DigitalNet<uint64_t>& dn,
     return compute_WAFOM64(dn, tyl);
 }
 
-double compute_WAFOM32(const DigitalNet<uint32_t>&,
-                       enum wafom_kind,
-                       double)
-{
-    return 0;
-}
-
-int64_t compute_tvalue64(const DigitalNet<uint64_t>& dn)
+template<typename U>
+int64_t compute_tvalue64(const DigitalNet<U>& dn)
 {
     using namespace std;
 
     uint32_t s = dn.getS();
     uint32_t m = dn.getM();
-    uint32_t n = 64; //sizeof(T) * 8;
+    uint32_t n = sizeof(U) * 8;
     uint32_t genMat[s][n];
     //transform_from_base_into_getMat();
     for (uint32_t i = 0; i < s; i++) {
@@ -146,7 +126,8 @@ int64_t compute_tvalue64(const DigitalNet<uint64_t>& dn)
         for (uint32_t i = 0; i < s; ++i) {
             for (uint32_t j = 0; j < n; ++j) {
                 if ( getBit(dn.getBase(k, i), n-1-j) == 1 ) {
-                    genMat[i][j] ^= powtwo(31-k);
+                    //genMat[i][j] ^= powtwo(31-k);
+                    genMat[i][j] ^= 1 << (31 - k);
                 }
             }
         }
@@ -190,38 +171,35 @@ int64_t compute_tvalue64(const DigitalNet<uint64_t>& dn)
     return -1;
 }
 
-int64_t compute_tvalue32(const DigitalNet<uint32_t>&)
-{
-    return -1;
-}
-
 namespace {
     double compute_WAFOM64(const DigitalNet<uint64_t>& dn,
-                           const tylsonia_t& tyl)
+                           const lookup_t& tyl)
     {
         uint32_t s = dn.getS();
         uint32_t m = dn.getM();
+        uint64_t maxcount = UINT64_C(1) << m;
         uint64_t b[s];
         Kahan sum;
         for (uint32_t i = 0; i < s; ++i) {
             b[i] = 0;
         }
-        //sum.add(tylsonia_function_table(b) - 1.0);
-        sum.add(tylsonia64(b, s, tyl) - 1.0);
-        Gray gray;
-        for (uint64_t cnt = 1; cnt < powtwo(m); ++cnt) {
-            gray.next();
+        //sum.add(lookup_function_table(b) - 1.0);
+        sum.add(lookup64(b, s, tyl) - 1.0);
+        GrayIndex gray;
+        for (uint64_t cnt = 1; cnt < maxcount; ++cnt) {
+            //gray.next();
             int bit = gray.index();
             for (uint32_t i = 0; i < s; ++i) {
                 b[i] ^= dn.getBase(bit, i);
             }
-            //sum.add(tylsonia_function_table(b) - 1.0);
-            sum.add(tylsonia64(b, s, tyl) - 1.0);
+            gray.next();
+            //sum.add(lookup_function_table(b) - 1.0);
+            sum.add(lookup64(b, s, tyl) - 1.0);
         }
         return log2(sum.get()) - static_cast<double>(m);
     }
 
-    int read_tyl(string& filename, int min, int c, tylsonia_t& tyl)
+    int read_tyl(string& filename, int min, int c, lookup_t& tyl)
     {
         const char * mode = "rb";
         FILE *fp = fopen(filename.c_str(), mode);
@@ -230,8 +208,8 @@ namespace {
             return -1;
         }
         int index = c - min;
-        fseek(fp, sizeof(tylsonia_t) * index, 0);
-        size_t count = fread(&tyl, sizeof(tylsonia_t), 1, fp);
+        fseek(fp, sizeof(lookup_t) * index, 0);
+        size_t count = fread(&tyl, sizeof(lookup_t), 1, fp);
         if (count != 1) {
             cout << "count = " << dec << count << endl;
             return -1;
@@ -240,78 +218,110 @@ namespace {
         }
     }
 
-    double tylsonia64(const uint64_t x[], int size, const tylsonia_t& table)
+
+
+}
+
+namespace {
+    /**
+     * calculate (-1)^{ej}
+     */
+    inline int32_t m1_power(int32_t ej)
     {
+        return -2 * ej + 1;
+    }
+
+    double calc_lookup(int32_t idx, int32_t e, double c)
+    {
+        double product = 1.0;
+        for (int j = 1; j <= element_length; j++) {
+            int32_t ej = static_cast<int32_t>((e >> (element_length - j)) & 1);
+            //m2_exp *= 0.5; // j = 1
+            double m2_exp = exp2(- factor * (idx * element_length + j + 1 - c));
+            product *= 1.0 + m1_power(ej) * m2_exp;
+        }
+        return product;
+    }
+
+    void make_lookup(double c, int n, lookup_t& table)
+    {
+        table.n = n;
+        table.c = c;
+        int idx_max;
+        if (n = 32) {
+            idx_max = 2;
+        } else {
+            idx_max = 4;
+        }
+        for (int i = 0; i < idx_max; i++) {
+            for (int j = 0; j < LOOKUP_MAX; j++) {
+                table.table[i][j] = calc_lookup(i, j, c);
+            }
+        }
+    }
+
+    template<typename U>
+    double lookup(const U x[], int size, const lookup_t& table)
+    {
+        int bitsize = sizeof(U) * 8;
+        int maxindex = bitsize / element_length;
         double ret = 1.0;
         for (int i = 0; i < size; ++i) {
-            for (int l = 0; l < 4; ++l) {
-                // 48 - 16 * l assumes 64-bit
-                int idx = (x[i] >> (48 - 16 * l)) & 65535;
+            for (int l = 0; l < maxindex; ++l) {
+                //int idx = (x[i] >> (48 - 16 * l)) & 65535;
+                int sh = (maxindex - l) * element_length
+                int idx = (x[i] >> sh) & 0xffff;
                 ret *= table.data[l][idx];
             }
         }
         return ret;
     }
 
-#if 0
-    double tylsonia(const uint64_t x[], int size, const tylsonia_t& table)
+    template <typename U>
+    double wafom_sub(const lookup_t& lookup, const U point[], int s)
     {
-        double ret = 1.0;
-        for (int i = 0; i < size; ++i) {
-            for (int l = 0; l < 4; ++l) {
-                // 48 - 16 * l assumes 64-bit
-                int idx = (x[i] >> (48 - 16 * l)) & 65535;
-                ret *= table.data[l][idx];
+        int maxindex = (sizeof(U) * 8) / element_length;
+        double prod = 1.0;
+        for (int i = 0; i < s; i++) {
+            for (int j = 0; j < maxindex; j++) {
+                int sh = (maxindex - j) * element_length
+                int32_t e = (point[i] >> sh) & 0xffffU;
+                prod *= lookup.table[j][e];
             }
         }
-        return ret;
+        return prod - 1.0;
     }
+
+    template<typename U>
+    double calc_wafom(DigitalNet<U>& dn, const lookup_t& table) {
+        int m = dn.getM();
+        int s = dn.getS();
+        dn.pointInitialize();
+        Kahan kahan;
+        kahan.clear();
+        uint64_t num = UINT64_C(1) << m;
+        for (uint64_t i = 0; i < num; i++) {
+            const U * point = dn.getPointBase();
+            double sub = wafom_sub(table, point, s);
+#if defined(DEBUG)
+            if (isnan(sub)) {
+                cout << "sub is nan" << endl;
+            }
 #endif
-
-    Combination::Combination(int size) {
-        this->size = size;
-        this->data = new int[size];
-    }
-
-    Combination::~Combination() {
-        delete[] data;
-    }
-
-    void Combination::reset(int init) {
-        this->init = init;
-        for (int i = 0; i < size - 1; i++) {
-            data[i] = 0;
-        }
-        data[size - 1] = init;
-    }
-
-    bool Combination::next() {
-        if (data[0] == init) {
-            return false;
-        }
-        int last = size - 1;
-        if (data[last] != 0) {
-            data[last]--;
-            data[last - 1]++;
-            return true;
-        }
-        for (int i = last - 1; i >= 1; i--) {
-            if (data[i] != 0) {
-                data[last] = data[i] - 1;
-                data[i] = 0;
-                data[i - 1]++;
-                return true;
+            kahan.add(sub);
+#if defined(DEBUG)
+            if (isnan(kahan.get())) {
+                cout << "kahan is nan i = " << i << endl;
+                cout << "sub = " << sub << endl;
+                break;
             }
+#endif
+            dn.nextPoint();
         }
-        return false;
-    }
-
-    void Combination::print(ostream& os) {
-        os << "Combination:";
-        for (int i = 0; i < size; i++) {
-            os << dec << data[i] << ",";
+        if (isnan(kahan.get())) {
+            cout << "kahan is nan" << endl;
         }
-        os << endl;
+        return kahan.get() / num;
     }
 
 }

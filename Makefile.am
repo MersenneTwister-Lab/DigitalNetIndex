@@ -1,4 +1,4 @@
 SUBDIRS = src
-dist_pkgdata_DATA = data/* example/*
+dist_pkgdata_DATA = example/*
 ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS

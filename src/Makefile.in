@@ -89,12 +89,12 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = digitalnet_index$(EXEEXT)
+check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
-	$(top_srcdir)/m4/m4_ax_boost_base.m4 \
 	$(top_srcdir)/m4/m4_ax_gcc_builtin.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -112,6 +112,12 @@ am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
 	$(am__objects_1)
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
 digitalnet_index_LDADD = $(LDADD)
+am_test_combination_OBJECTS = test_combination.$(OBJEXT)
+test_combination_OBJECTS = $(am_test_combination_OBJECTS)
+test_combination_LDADD = $(LDADD)
+am_test_gray_OBJECTS = test_gray.$(OBJEXT)
+test_gray_OBJECTS = $(am_test_gray_OBJECTS)
+test_gray_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -153,8 +159,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(digitalnet_index_SOURCES)
-DIST_SOURCES = $(digitalnet_index_SOURCES)
+SOURCES = $(digitalnet_index_SOURCES) $(test_combination_SOURCES) \
+	$(test_gray_SOURCES)
+DIST_SOURCES = $(digitalnet_index_SOURCES) $(test_combination_SOURCES) \
+	$(test_gray_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -190,8 +198,6 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
-BOOST_LDFLAGS = @BOOST_LDFLAGS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -286,8 +292,15 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-digital_header = DigitalNet.h digital.h bit_operator.h powtwo.h config.h
+digital_header = DigitalNet.h digital.h bit_operator.h powtwo.h config.h \
+combination.hpp
+
 compute_header = compute.h gray.hpp matrix_rank.hpp kahan.hpp
+
+#executable files of make check (sh file ok)
+TEST = test_combination test_gray
+test_combination_SOURCES = test_combination.cpp combination.hpp
+test_gray_SOURCES = test_gray.cpp
 digitalnet_index_SOURCES = digitalnet_index.cpp \
 	DigitalNet.cpp $(digital_header) \
 	compute.cpp $(compute_header)
@@ -385,9 +398,20 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+clean-checkPROGRAMS:
+	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
 digitalnet_index$(EXEEXT): $(digitalnet_index_OBJECTS) $(digitalnet_index_DEPENDENCIES) $(EXTRA_digitalnet_index_DEPENDENCIES) 
 	@rm -f digitalnet_index$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(digitalnet_index_OBJECTS) $(digitalnet_index_LDADD) $(LIBS)
+
+test_combination$(EXEEXT): $(test_combination_OBJECTS) $(test_combination_DEPENDENCIES) $(EXTRA_test_combination_DEPENDENCIES) 
+	@rm -f test_combination$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_combination_OBJECTS) $(test_combination_LDADD) $(LIBS)
+
+test_gray$(EXEEXT): $(test_gray_OBJECTS) $(test_gray_DEPENDENCIES) $(EXTRA_test_gray_DEPENDENCIES) 
+	@rm -f test_gray$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_gray_OBJECTS) $(test_gray_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -398,6 +422,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DigitalNet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/digitalnet_index.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_combination.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_gray.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -496,6 +522,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(PROGRAMS) config.h
 installdirs:
@@ -534,7 +561,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -601,21 +629,21 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS
 
-.MAKE: all install-am install-strip
+.MAKE: all check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
-	distclean distclean-compile distclean-generic distclean-hdr \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-hdr distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-binPROGRAMS install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

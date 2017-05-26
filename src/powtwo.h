@@ -22,16 +22,11 @@
 #include <iostream>
 #include <iomanip>
 #include <inttypes.h>
-#include <stdexcept>
 
-static inline uint64_t powtwo(int index) {
-    using namespace std;
-    if (index < 0 || index > 63) {
-        cerr << "index out of range in powtwo. index = " << dec << index
-             << "\nindex r should be in the range 0 <= r <= 63" << endl;
-        throw invalid_argument("index out of range in powtwo");
-    }
-    return UINT64_C(1) << index;
+template<typename U = uint64_t>
+static inline U exp2ul(int index) {
+    const U one = 1;
+    return one << index;
 }
 
 #endif // POWTWO_H

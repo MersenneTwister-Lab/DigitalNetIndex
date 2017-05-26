@@ -40,6 +40,7 @@ static inline double compute_WAFOM(const DigitalNet<int_type>& dn,
     return compute_WAFOM(dn, kind, c);
 }
 
+#if 0
 template<>
 double compute_WAFOM(const DigitalNet<uint64_t>& dn,
                                    enum wafom_kind kind,
@@ -47,7 +48,6 @@ double compute_WAFOM(const DigitalNet<uint64_t>& dn,
 {
     return compute_WAFOM64(dn, kind, c);
 }
-
 template<>
 double compute_WAFOM(const DigitalNet<uint32_t>& dn,
                      enum wafom_kind kind,
@@ -55,6 +55,7 @@ double compute_WAFOM(const DigitalNet<uint32_t>& dn,
 {
     return compute_WAFOM32(dn, kind, c);
 }
+#endif
 
 int64_t compute_tvalue64(const DigitalNet<uint64_t>& dn);
 
@@ -64,10 +65,12 @@ static inline int64_t compute_tvalue(const DigitalNet<T>& dn)
     return compute_tvalue(dn);
 }
 
+#if 0
 template<>
 int64_t compute_tvalue(const DigitalNet<uint64_t>& dn)
 {
     return compute_tvalue64(dn);
 }
+#endif
 
 #endif // COMPUTE_H
