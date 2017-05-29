@@ -14,8 +14,10 @@
  * The GPL ver.3 is applied to this software, see
  * COPYING
  */
-#include "compute.h"
-#include "DigitalNet.h"
+#include "calc_wafom.hpp"
+#include "calc_tvalue.hpp"
+#include "cvmean.h"
+#include "DigitalNet.hpp"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -27,6 +29,7 @@
 //#define DEBUG
 
 using namespace std;
+using namespace DigitalNet;
 
 struct cmd_option {
     bool wafom;
@@ -69,7 +72,8 @@ int main(int argc, char * argv[])
 #endif
     DigitalNet<uint64_t> dn(dnstream);
     if (opt.verbose) {
-        dn.showStatus(cout);
+        //dn.showStatus(cout);
+        print(cout, dn);
     }
     //print_dn<uint64_t>(cout, dn);
     if (opt.wafom && (opt.c < -5.0 || opt.c > 5.0)) {
@@ -81,7 +85,8 @@ int main(int argc, char * argv[])
 #endif
     if (opt.wafom) {
         double c = opt.c;
-        double wafom = compute_WAFOM(dn, BIG, c);
+        //double wafom = compute_WAFOM(dn, c);
+        double wafom = calc_wafom(dn, c);
         cout << "c = " << opt.c << endl;
         cout << "wafom = " << fixed << setprecision(20) << wafom << endl;
     }
@@ -92,12 +97,14 @@ int main(int argc, char * argv[])
     }
 #endif
     if (opt.meanwafom) {
-        double wafom = compute_WAFOM(dn, MEAN, -1);
+        //double wafom = compute_WAFOM(dn, MEAN, -1);
+        double c = calc_c_for_cvmean(dn.getS(), 64);
+        double wafom = calc_wafom(dn, c);
         //cout << "cv = " << opt.cv << endl;
-        cout << "mean-wafom = " << fixed << setprecision(20) << wafom << endl;
+        cout << "mean-wafom = " << fixed << setprecision(18) << wafom << endl;
     }
     if (opt.tvalue) {
-        int64_t tvalue = compute_tvalue(dn);
+        int64_t tvalue = calc_tvalue(dn);
         cout << "tvalue = " << tvalue << endl;
         if (tvalue < 0) {
             return -3;
