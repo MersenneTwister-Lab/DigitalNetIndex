@@ -5,7 +5,6 @@ Calculate WAFOM and t-value of Digital Net.
 REQUIREMENT
 ===========
 * C++11 or C++14
-* Boost 1.48 or later
 * Little Endian System
 
 INSTALL
@@ -17,12 +16,6 @@ INSTALL
 
 PREPARE
 =======
-before use, unzip data files
-
-    cd YOUR_INSTALL_DIR/share/digitalnetindex
-    gunzip bigtyl.dat.gz
-    gunzip meantyl.dat.gz
-
 set environment variable DIGITAL_NET_PATH
 
     export DIGITAL_NET_PATH=YOUR_INSTALL_DIR/share/digitalnetindex
@@ -49,16 +42,16 @@ FILE FORMAT
 The file format of digital net data is as follows:
 
     1st item: 64 fixed
-    2nd item: s
-    3rd item: m
+    2nd item: s dimension of R
+    3rd item: m dimension of F2
     from 4th: s * m number of 64-bit unsigned integers
     remain:   ignored
 
-The delimiters of item are whitespaces and/or newlines.
+The delimiters of items are whitespaces and/or newlines.
 
 CAUTION
 =======
-Data file `bigtyl.dat' and `meantyl.dat' are binary files which were
+Data files are binary files which were
 made on Little Endian System and will not work correctly on
 Big Endian Systems.
 
