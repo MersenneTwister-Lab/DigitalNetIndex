@@ -118,25 +118,27 @@ am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
 digitalnet_index_LDADD = $(LDADD)
 am_test_calc_cvmean_OBJECTS = test_calc_cvmean.$(OBJEXT) \
-	cvmean.$(OBJEXT)
+	cvmean.$(OBJEXT) $(am__objects_1)
 test_calc_cvmean_OBJECTS = $(am_test_calc_cvmean_OBJECTS)
 test_calc_cvmean_LDADD = $(LDADD)
 am_test_calc_tvalue_OBJECTS = test_calc_tvalue.$(OBJEXT) \
-	DigitalNet.$(OBJEXT)
+	DigitalNet.$(OBJEXT) $(am__objects_1)
 test_calc_tvalue_OBJECTS = $(am_test_calc_tvalue_OBJECTS)
 test_calc_tvalue_LDADD = $(LDADD)
 am_test_calc_wafom_OBJECTS = test_calc_wafom.$(OBJEXT) \
-	calc_wafom_lookup.$(OBJEXT) DigitalNet.$(OBJEXT)
+	calc_wafom_lookup.$(OBJEXT) DigitalNet.$(OBJEXT) \
+	$(am__objects_1)
 test_calc_wafom_OBJECTS = $(am_test_calc_wafom_OBJECTS)
 test_calc_wafom_LDADD = $(LDADD)
-am_test_combination_OBJECTS = test_combination.$(OBJEXT)
+am_test_combination_OBJECTS = test_combination.$(OBJEXT) \
+	$(am__objects_1)
 test_combination_OBJECTS = $(am_test_combination_OBJECTS)
 test_combination_LDADD = $(LDADD)
 am_test_digitalnet_OBJECTS = test_digitalnet.$(OBJEXT) \
-	DigitalNet.$(OBJEXT)
+	DigitalNet.$(OBJEXT) $(am__objects_1)
 test_digitalnet_OBJECTS = $(am_test_digitalnet_OBJECTS)
 test_digitalnet_LDADD = $(LDADD)
-am_test_gray_OBJECTS = test_gray.$(OBJEXT)
+am_test_gray_OBJECTS = test_gray.$(OBJEXT) $(am__objects_1)
 test_gray_OBJECTS = $(am_test_gray_OBJECTS)
 test_gray_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_$(V))
@@ -521,21 +523,23 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-digital_header = DigitalNet.hpp digital.h bit_operator.h powtwo.h config.h \
+digital_header = DigitalNet.hpp digital.h bit_operator.h config.h \
 combination.hpp
 
-compute_header = compute.h gray.hpp matrix_rank.hpp kahan.hpp
-test_combination_SOURCES = test_combination.cpp combination.hpp
-test_gray_SOURCES = test_gray.cpp
-test_calc_cvmean_SOURCES = test_calc_cvmean.cpp cvmean.cpp
-test_calc_wafom_SOURCES = test_calc_wafom.cpp calc_wafom_lookup.cpp \
-DigitalNet.cpp
+calc_header = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
+calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h
 
-test_calc_tvalue_SOURCES = test_calc_tvalue.cpp DigitalNet.cpp
-test_digitalnet_SOURCES = test_digitalnet.cpp DigitalNet.cpp
+test_combination_SOURCES = test_combination.cpp $(digital_header)
+test_gray_SOURCES = test_gray.cpp $(calc_header)
+test_calc_cvmean_SOURCES = test_calc_cvmean.cpp cvmean.cpp $(calc_header)
+test_calc_wafom_SOURCES = test_calc_wafom.cpp calc_wafom_lookup.cpp \
+DigitalNet.cpp $(calc_header)
+
+test_calc_tvalue_SOURCES = test_calc_tvalue.cpp DigitalNet.cpp $(calc_header)
+test_digitalnet_SOURCES = test_digitalnet.cpp DigitalNet.cpp $(digital_header)
 digitalnet_index_SOURCES = digitalnet_index.cpp \
 	DigitalNet.cpp $(digital_header) \
-	cvmean.cpp $(compute_header)
+ cvmean.cpp $(calc_header)
 
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS
 all: config.h

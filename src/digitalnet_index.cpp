@@ -101,6 +101,7 @@ int main(int argc, char * argv[])
         double c = calc_c_for_cvmean(dn.getS(), 64);
         double wafom = calc_wafom(dn, c);
         //cout << "cv = " << opt.cv << endl;
+        cout << "c for cvmean = " << fixed << c << endl;
         cout << "mean-wafom = " << fixed << setprecision(18) << wafom << endl;
     }
     if (opt.tvalue) {
