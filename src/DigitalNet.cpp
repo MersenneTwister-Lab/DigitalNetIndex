@@ -36,7 +36,7 @@ using namespace std;
  * Unnamed NameSpace for file scope things.
  */
 namespace {
-    using namespace DigitalNet;
+    using namespace DigitalNetNS;
     //const int N = 64;
     //const int S_MIN = 4;
     //const int S_MAX = 10;
@@ -74,8 +74,8 @@ namespace {
     {
         uint64_t data[s * m];
         uint64_t tmp;
-        uint32_t i;
-        uint32_t j;
+        uint32_t i = 0;
+        uint32_t j = 0;
         for (i = 0; i < m; i++) {
             for (j = 0; j < s; j++) {
                 if (!is) {
@@ -225,7 +225,7 @@ namespace {
 
 }
 
-namespace DigitalNet {
+namespace DigitalNetNS {
     const string getDigitalNetName(uint32_t index)
     {
         if (index < digital_net_name_data_size) {

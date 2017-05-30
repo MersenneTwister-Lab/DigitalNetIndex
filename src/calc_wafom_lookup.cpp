@@ -1,7 +1,7 @@
 #include "calc_wafom_lookup.hpp"
 
 using namespace std;
-using namespace DigitalNet;
+using namespace DigitalNetNS;
 
 namespace {
 

@@ -20,6 +20,7 @@
  * COPYING
  */
 #include "grayindex.hpp"
+#include <stdint.h>
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -27,7 +28,7 @@
 #include <cerrno>
 #include <random>
 
-namespace DigitalNet {
+namespace DigitalNetNS {
 
     enum digital_net_id {
         NX = 0,

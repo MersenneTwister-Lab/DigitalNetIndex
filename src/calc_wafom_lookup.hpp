@@ -31,7 +31,7 @@ double wafom_sub(double table[4][65536], const U point[], int s)
 }
 
 template<typename U>
-double calc_wafom(DigitalNet::DigitalNet<U>& dn, double table[4][65536]) {
+double calc_wafom(DigitalNetNS::DigitalNet<U>& dn, double table[4][65536]) {
     using namespace std;
     int m = dn.getM();
     int s = dn.getS();

@@ -7,7 +7,7 @@
 #include "combination.hpp"
 
 template<typename U>
-int64_t calc_tvalue(const DigitalNet::DigitalNet<U>& dn)
+int64_t calc_tvalue(const DigitalNetNS::DigitalNet<U>& dn)
 {
     using namespace std;
 

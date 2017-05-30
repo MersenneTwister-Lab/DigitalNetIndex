@@ -18,6 +18,7 @@
 #include "calc_tvalue.hpp"
 #include "cvmean.h"
 #include "DigitalNet.hpp"
+#include <stdint.h>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -29,7 +30,7 @@
 //#define DEBUG
 
 using namespace std;
-using namespace DigitalNet;
+using namespace DigitalNetNS;
 
 struct cmd_option {
     bool wafom;

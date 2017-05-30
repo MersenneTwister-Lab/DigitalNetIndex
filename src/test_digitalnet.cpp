@@ -5,7 +5,7 @@
 #include <cerrno>
 
 using namespace std;
-using namespace DigitalNet;
+using namespace DigitalNetNS;
 
 static int test_digitalnet();
 static int output_digitalnet(int argc, char * argv[]);

@@ -8,7 +8,7 @@
 #include <cfloat>
 
 using namespace std;
-using namespace DigitalNet;
+using namespace DigitalNetNS;
 
 namespace {
     int test_wafom();
