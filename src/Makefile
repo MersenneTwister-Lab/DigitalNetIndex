@@ -88,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-apple-darwin16.6.0
 host_triplet = x86_64-apple-darwin16.6.0
-bin_PROGRAMS = digitalnet_index$(EXEEXT)
+bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT)
 check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 	test_calc_cvmean$(EXEEXT) test_calc_wafom$(EXEEXT) \
 	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT)
@@ -111,23 +111,26 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 =
+am__objects_1 = sobolpoint.$(OBJEXT) DigitalNet.$(OBJEXT)
+am__objects_2 = cvmean.$(OBJEXT) calc_wafom_lookup.$(OBJEXT)
 am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
-	DigitalNet.$(OBJEXT) $(am__objects_1) cvmean.$(OBJEXT) \
-	$(am__objects_1)
+	$(am__objects_1) $(am__objects_2)
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
 digitalnet_index_LDADD = $(LDADD)
+am_search_lowwafom_OBJECTS = search_lowwafom.$(OBJEXT) \
+	$(am__objects_1) $(am__objects_2)
+search_lowwafom_OBJECTS = $(am_search_lowwafom_OBJECTS)
+search_lowwafom_LDADD = $(LDADD)
 am_test_calc_cvmean_OBJECTS = test_calc_cvmean.$(OBJEXT) \
-	cvmean.$(OBJEXT) $(am__objects_1)
+	$(am__objects_2)
 test_calc_cvmean_OBJECTS = $(am_test_calc_cvmean_OBJECTS)
 test_calc_cvmean_LDADD = $(LDADD)
 am_test_calc_tvalue_OBJECTS = test_calc_tvalue.$(OBJEXT) \
-	DigitalNet.$(OBJEXT) $(am__objects_1)
+	$(am__objects_2) $(am__objects_1)
 test_calc_tvalue_OBJECTS = $(am_test_calc_tvalue_OBJECTS)
 test_calc_tvalue_LDADD = $(LDADD)
 am_test_calc_wafom_OBJECTS = test_calc_wafom.$(OBJEXT) \
-	calc_wafom_lookup.$(OBJEXT) DigitalNet.$(OBJEXT) \
-	$(am__objects_1)
+	$(am__objects_1) $(am__objects_2)
 test_calc_wafom_OBJECTS = $(am_test_calc_wafom_OBJECTS)
 test_calc_wafom_LDADD = $(LDADD)
 am_test_combination_OBJECTS = test_combination.$(OBJEXT) \
@@ -135,10 +138,10 @@ am_test_combination_OBJECTS = test_combination.$(OBJEXT) \
 test_combination_OBJECTS = $(am_test_combination_OBJECTS)
 test_combination_LDADD = $(LDADD)
 am_test_digitalnet_OBJECTS = test_digitalnet.$(OBJEXT) \
-	DigitalNet.$(OBJEXT) $(am__objects_1)
+	$(am__objects_1)
 test_digitalnet_OBJECTS = $(am_test_digitalnet_OBJECTS)
 test_digitalnet_LDADD = $(LDADD)
-am_test_gray_OBJECTS = test_gray.$(OBJEXT) $(am__objects_1)
+am_test_gray_OBJECTS = test_gray.$(OBJEXT) $(am__objects_2)
 test_gray_OBJECTS = $(am_test_gray_OBJECTS)
 test_gray_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_$(V))
@@ -182,14 +185,14 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(digitalnet_index_SOURCES) $(test_calc_cvmean_SOURCES) \
-	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
-	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
-	$(test_gray_SOURCES)
-DIST_SOURCES = $(digitalnet_index_SOURCES) $(test_calc_cvmean_SOURCES) \
-	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
-	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
-	$(test_gray_SOURCES)
+SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
+	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
+	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
+	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
+DIST_SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
+	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
+	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
+	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -523,23 +526,21 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-digital_header = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp
+digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
+combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp
 
-calc_header = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
-calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h
+calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
+calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp
 
-test_combination_SOURCES = test_combination.cpp $(digital_header)
-test_gray_SOURCES = test_gray.cpp $(calc_header)
-test_calc_cvmean_SOURCES = test_calc_cvmean.cpp cvmean.cpp $(calc_header)
-test_calc_wafom_SOURCES = test_calc_wafom.cpp calc_wafom_lookup.cpp \
-DigitalNet.cpp $(calc_header)
-
-test_calc_tvalue_SOURCES = test_calc_tvalue.cpp DigitalNet.cpp $(calc_header)
-test_digitalnet_SOURCES = test_digitalnet.cpp DigitalNet.cpp $(digital_header)
-digitalnet_index_SOURCES = digitalnet_index.cpp \
-	DigitalNet.cpp $(digital_header) \
- cvmean.cpp $(calc_header)
+test_combination_SOURCES = test_combination.cpp $(digital_files)
+test_gray_SOURCES = test_gray.cpp $(calc_files)
+test_calc_cvmean_SOURCES = test_calc_cvmean.cpp $(calc_files)
+test_calc_wafom_SOURCES = test_calc_wafom.cpp $(digital_files) $(calc_files)
+test_calc_tvalue_SOURCES = test_calc_tvalue.cpp $(calc_files) $(digital_files)
+test_digitalnet_SOURCES = test_digitalnet.cpp $(digital_files)
+digitalnet_index_SOURCES = digitalnet_index.cpp $(digital_files) $(calc_files)
+search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
+	linear_scramble.hpp $(calc_files)
 
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS
 all: config.h
@@ -641,6 +642,10 @@ digitalnet_index$(EXEEXT): $(digitalnet_index_OBJECTS) $(digitalnet_index_DEPEND
 	@rm -f digitalnet_index$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(digitalnet_index_OBJECTS) $(digitalnet_index_LDADD) $(LIBS)
 
+search_lowwafom$(EXEEXT): $(search_lowwafom_OBJECTS) $(search_lowwafom_DEPENDENCIES) $(EXTRA_search_lowwafom_DEPENDENCIES) 
+	@rm -f search_lowwafom$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(search_lowwafom_OBJECTS) $(search_lowwafom_LDADD) $(LIBS)
+
 test_calc_cvmean$(EXEEXT): $(test_calc_cvmean_OBJECTS) $(test_calc_cvmean_DEPENDENCIES) $(EXTRA_test_calc_cvmean_DEPENDENCIES) 
 	@rm -f test_calc_cvmean$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_calc_cvmean_OBJECTS) $(test_calc_cvmean_LDADD) $(LIBS)
@@ -675,6 +680,8 @@ include ./$(DEPDIR)/DigitalNet.Po
 include ./$(DEPDIR)/calc_wafom_lookup.Po
 include ./$(DEPDIR)/cvmean.Po
 include ./$(DEPDIR)/digitalnet_index.Po
+include ./$(DEPDIR)/search_lowwafom.Po
+include ./$(DEPDIR)/sobolpoint.Po
 include ./$(DEPDIR)/test_calc_cvmean.Po
 include ./$(DEPDIR)/test_calc_tvalue.Po
 include ./$(DEPDIR)/test_calc_wafom.Po

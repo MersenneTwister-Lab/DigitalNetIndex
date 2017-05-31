@@ -50,7 +50,7 @@ int main(int argc, char * argv[])
 namespace {
     int test_wafom()
     {
-        static double table[4][65536];
+        static lookup_t table;
         bool error = false;
         for (int i = 0; i < 12; i++) {
             int id = data[i].id;
@@ -109,7 +109,7 @@ namespace {
         if (errno) {
             cout << "id n and c should be a number" << endl;
         }
-        static double table[4][65536];
+        static lookup_t table;
         make_table(n, table, c);
         double wafom1;
         double wafom2;

@@ -9,10 +9,14 @@
 
 const int el = 16;
 
-void make_table(int n, double table[4][65536], double d);
+struct lookup_t {
+    double table[4][65536];
+};
+
+void make_table(int n, lookup_t& table, double d);
 
 template<typename U>
-double wafom_sub(double table[4][65536], const U point[], int s)
+double wafom_sub(const lookup_t& table, const U point[], int s)
 {
     double prod = 1.0;
     int maxidx;
@@ -24,14 +28,14 @@ double wafom_sub(double table[4][65536], const U point[], int s)
     for (int i = 0; i < s; i++) {
         for (int j = 0; j < maxidx; j++) {
             int32_t e = (point[i] >> ((maxidx - 1 - j) * el)) & 0xffffU;
-            prod *= table[j][e];
+            prod *= table.table[j][e];
         }
     }
     return prod - 1.0;
 }
 
 template<typename U>
-double calc_wafom(DigitalNetNS::DigitalNet<U>& dn, double table[4][65536]) {
+double calc_wafom(DigitalNetNS::DigitalNet<U>& dn, const lookup_t& table) {
     using namespace std;
     int m = dn.getM();
     int s = dn.getS();

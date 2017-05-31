@@ -18,11 +18,12 @@
  */
 #include "config.h"
 #include "digital.h"
-//#include "powtwo.h"
 #include "bit_operator.h"
 #include "DigitalNet.hpp"
+#include "sobolpoint.h"
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <string>
 #include <stdexcept>
 #include <stdlib.h>
@@ -52,7 +53,8 @@ namespace {
 
     const digital_net_name digital_net_name_data[] = {
         {"NX", "nx", "Niederreiter-Xing"},
-        {"Sobol", "so", "Sobol"},
+        //{"Sobol", "so", "Sobol"},
+        {"Sobol", "sobolbase", "Sobol"},
         {"Old_Sobol", "oldso", "Old Sobol"},
         {"NX_LowWAFOM", "nxlw", "NX+LowWAFOM, CV = (max(CV) + min(CV))/2"},
         {"Sobol_LowWAFOM", "solw", "Sobol+LowWAFOM, CV = (max(CV) + min(CV))/2"}
@@ -65,6 +67,48 @@ namespace {
         return getenv(digital_net_path.c_str());
     }
 
+    const string makePath(const string& name, const string& ext)
+    {
+        string path;
+        const char * cpath = getDataPath();
+        if (cpath == NULL) {
+            path = "../data";
+        } else {
+            path = cpath;
+        }
+        if (path.back() != '/') {
+            path += "/";
+        }
+        path += name;
+        path += ext;
+        return path;
+    }
+
+    template<typename U>
+    int readSobolBase(const string& path, uint32_t s, uint32_t m, U base[])
+    {
+        ifstream ifs(path, ios::in | ios::binary);
+        if (!ifs) {
+            cerr << "can't open:" << path << endl;
+            return -1;
+        }
+        uint64_t data[s * m];
+        bool r = get_sobol_base(ifs, s, m, data);
+        if (!r) {
+            return -1;
+        }
+        if (sizeof(U) * 8  == 32) {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = static_cast<U>((data[i] >> 32)
+                                         & UINT32_C(0xffffffff));
+            }
+        } else {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = data[i];
+            }
+        }
+        return 0;
+    }
 
     template<typename U>
     int read_digital_net_data(std::istream& is, int n,
@@ -125,20 +169,11 @@ namespace {
 #if defined(DEBUG)
         cout << "in read_digital_net_data" << endl;
 #endif
-        string path;
-        const char * cpath = getDataPath();
-        if (cpath == NULL) {
-            path = "../data";
-        } else {
-            path = cpath;
-        }
-        if (path.back() != '/') {
-            path += "/";
-        }
-        //string name = digital_net_name_data[id].name;
         string name = digital_net_name_data[id].abb;
-        path += name;
-        path += ".dat";
+        string path = makePath(name, ".dat");
+        if (id == SOBOL) {
+            return readSobolBase(path, s, m, base);
+        }
 #if defined(DEBUG)
         cout << "fname = " << path << endl;
 #endif
@@ -389,6 +424,7 @@ namespace DigitalNetNS {
         uint64_t tmp;
 
         for (uint32_t i = 0; i < s; ++i) {
+            // 正則な下三角行列を作る
             for (uint32_t j = 0; j < N; ++j) {
                 LowTriMat[j] = (mt() << (N - j - 1))
                     | powtwo(N - j - 1);

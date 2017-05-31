@@ -39,7 +39,7 @@ namespace {
     }
 }
 
-void make_table(int n, double table[4][65536], double d)
+void make_table(int n, lookup_t& table, double d)
 {
     int w;
     if (n == 64) {
@@ -49,12 +49,12 @@ void make_table(int n, double table[4][65536], double d)
     }
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < 65536; j++) {
-            table[i][j] = calc_lookup(i, j, d);
+            table.table[i][j] = calc_lookup(i, j, d);
         }
     }
     for (int i = w; i < 4; i++) {
         for (int j = 0; j < 65536; j++) {
-            table[i][j] = 0;
+            table.table[i][j] = 0;
         }
     }
 }

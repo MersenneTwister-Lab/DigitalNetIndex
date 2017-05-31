@@ -22,6 +22,7 @@
 #include "grayindex.hpp"
 #include <stdint.h>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -32,7 +33,7 @@ namespace DigitalNetNS {
 
     enum digital_net_id {
         NX = 0,
-        SO = 1,
+        SOBOL = 1,
         OLDSO = 2,
         NXLW = 3,
         SOLW = 4,
@@ -58,10 +59,10 @@ namespace DigitalNetNS {
                            uint32_t s, uint32_t m,
                            uint32_t base[],
                            int * tvalue, double * wafom);
-    uint32_t getSMax();
-    uint32_t getSMin();
-    uint32_t getMMax();
-    uint32_t getMMin();
+    //uint32_t getSMax();
+    //uint32_t getSMin();
+    //uint32_t getMMax();
+    //uint32_t getMMin();
 
     template<typename U>
     class DigitalNet {
@@ -141,6 +142,19 @@ namespace DigitalNetNS {
             return base[i * s + j];
         }
 
+        // このあとpoint initialize せよ
+        void saveBase(U save[], size_t size) const {
+            for (size_t i = 0; (i < s * m) && (i < size); i++) {
+                save[i] = base[i];
+            }
+        }
+
+        void restoreBase(U save[], size_t size) const {
+            for (size_t i = 0; (i < s * m) && (i < size); i++) {
+                base[i] = save[i];
+            }
+        }
+
         double getPoint(int i) const {
             return point[i];
         }
@@ -166,8 +180,60 @@ namespace DigitalNetNS {
                 return "no name";
             }
         }
-        void showStatus(std::ostream& os);
-        void scramble();
+
+        // Random Linear Scramble
+        // Base を変えてしまう => いいのかも。
+        void scramble() {
+            const size_t N = sizeof(U) * 8;
+            U LowTriMat[N];
+            U tmp;
+            const U one = 1;
+            for (size_t i = 0; i < s; i++) {
+                // 正則な下三角行列を作る
+                for (size_t j = 0; j < N; j++) {
+                    U p2 = one << (N - j - 1);
+                    LowTriMat[j] = (mt() << (N - j - 1)) | p2;
+                }
+                for (size_t k = 0; k < m; k++) {
+                    tmp = UINT64_C(0);
+                    for (size_t j = 0; j < N; j++) {
+                        U bit = innerProduct(LowTriMat[j], getBase(k, i));
+                        tmp ^= bit << (N - j - 1);
+                    }
+                    setBase(k, i, tmp);
+                }
+            }
+        }
+
+        /** Hill Climb Linear Scramble.
+         *
+         *
+         指定されたi(0<=i<s)に対し, C_iのみにL_iをかける操作をする
+         ただし, L_iは下三角行列かつ正則で, 指定されたj, l(n>j>l>=0)に対し
+         第(j, l)成分(と対角成分)が1, その他が0の行列である.
+         もう一度同じL_iをC_iにかけることで元のC_iに戻る.
+         L_i(j, l)をC_iにかけると, C_iのj行にl行を足した(XOR)ものとなる.
+
+         * @param idx C_i
+         * @param upos1 j count from MSB 0 is MSB
+         * @param upos2 l count from MSB 0 is MSB
+         */
+        void hc_scramble(int idx, int upos1, int upos2) {
+            // getBit(a, b) : a の下から b 番目のbit
+            const U one = 1;
+            const int N = sizeof(U) * 8;
+            int bpos1 = N - 1 - upos1;
+            U umask1 = one << bpos1;
+            int bpos2 = N - 1 - upos2;
+            U umask2 = one << bpos2;
+            for (size_t i = 0; i < m; i++) {
+                int index = getIndex(i, idx);
+                if (base[index] & umask2) {
+                    base[index] ^= umask1;
+                }
+            }
+        }
+
         void pointInitialize() {
 #if defined(DEBUG)
             using namespace std;
@@ -183,7 +249,7 @@ namespace DigitalNetNS {
                 point = new double[s]();
             }
             for (uint32_t i = 0; i < s; ++i) {
-                //point_base[i] = getBase(0, i);
+                point_base[i] = 0;
                 shift[i] = mt();
             }
             gray.clear();
@@ -247,6 +313,7 @@ namespace DigitalNetNS {
             cout << "out nextPoint" << endl;
 #endif
         }
+        //void showStatus(std::ostream& os);
         void setSeed(U seed);
         double getWAFOM() {
             return wafom;
@@ -259,7 +326,9 @@ namespace DigitalNetNS {
         void setBase(int i, int j, U value) {
             base[i * s + j] = value;
         }
-        void scramble(int i, int j, int l);
+        int getIndex(int i, int j) const {
+            return i * s + j;
+        }
         int id;
         uint32_t s;
         uint32_t m;
@@ -276,20 +345,33 @@ namespace DigitalNetNS {
 
 
     template<typename T>
-    void print(std::ostream& os, const DigitalNet<T>& dn)
+    void print(std::ostream& os, const DigitalNet<T>& dn, bool verbose = true)
     {
         using namespace std;
         int s = dn.getS();
         int m = dn.getM();
-        os << "n = " << (sizeof(T) * 8) << endl;
-        os << "s = " << s << endl;
-        os << "m = " << m << endl;
-        for (int k = 0; k < m; k++) {
-            for (int i = 0; i < s; i++) {
-                os << "base[" << dec << k << "][" << i << "]"
-                   << hex << dn.getBase(k, i) << endl;
+        int w = sizeof(T) * 2;
+        os << dec;
+        if (verbose) {
+            os << "n = " << (sizeof(T) * 8) << endl;
+            os << "s = " << s << endl;
+            os << "m = " << m << endl;
+            for (int k = 0; k < m; k++) {
+                for (int i = 0; i < s; i++) {
+                    os << "base[" << dec << k << "][" << i << "]"
+                       << hex << dn.getBase(k, i) << endl;
+                }
             }
-            //os << endl;
+        } else {
+            os << (sizeof(T) * 8) << endl;
+            os << s << endl;
+            os << m << endl;
+            for (int k = 0; k < m; k++) {
+                for (int i = 0; i < s; i++) {
+                    os << setw(w) << hex << dn.getBase(k, i) << " ";
+                }
+                os << endl;
+            }
         }
     }
 }
