@@ -214,6 +214,7 @@ namespace DigitalNetNS {
          もう一度同じL_iをC_iにかけることで元のC_iに戻る.
          L_i(j, l)をC_iにかけると, C_iのj行にl行を足した(XOR)ものとなる.
 
+         * upos1 > upos2
          * @param idx C_i
          * @param upos1 j count from MSB 0 is MSB
          * @param upos2 l count from MSB 0 is MSB
@@ -222,6 +223,7 @@ namespace DigitalNetNS {
             // getBit(a, b) : a の下から b 番目のbit
             const U one = 1;
             const int N = sizeof(U) * 8;
+            //int diff = upos2 - upos1;
             int bpos1 = N - 1 - upos1;
             U umask1 = one << bpos1;
             int bpos2 = N - 1 - upos2;
@@ -345,12 +347,12 @@ namespace DigitalNetNS {
 
 
     template<typename T>
-    void print(std::ostream& os, const DigitalNet<T>& dn, bool verbose = true)
+    void print(std::ostream& os, const DigitalNet<T>& dn,
+               bool verbose = true, char delim = '\n')
     {
         using namespace std;
         int s = dn.getS();
         int m = dn.getM();
-        int w = sizeof(T) * 2;
         os << dec;
         if (verbose) {
             os << "n = " << (sizeof(T) * 8) << endl;
@@ -363,14 +365,16 @@ namespace DigitalNetNS {
                 }
             }
         } else {
-            os << (sizeof(T) * 8) << endl;
-            os << s << endl;
-            os << m << endl;
+            os << (sizeof(T) * 8) << delim;
+            os << s << delim;
+            os << m << delim;
             for (int k = 0; k < m; k++) {
                 for (int i = 0; i < s; i++) {
-                    os << setw(w) << hex << dn.getBase(k, i) << " ";
+                    os << dec << dn.getBase(k, i) << delim;
                 }
-                os << endl;
+                if (delim != ' ') {
+                    os << delim;
+                }
             }
         }
     }
