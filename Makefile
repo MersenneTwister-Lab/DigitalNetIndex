@@ -91,6 +91,7 @@ host_triplet = x86_64-apple-darwin16.6.0
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_0x.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
 	$(top_srcdir)/m4/m4_ax_gcc_builtin.m4 \
@@ -276,15 +277,15 @@ OBJEXT = o
 PACKAGE = digitalnetindex
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = digitalnetindex
-PACKAGE_STRING = digitalnetindex 0.2
+PACKAGE_STRING = digitalnetindex 0.3
 PACKAGE_TARNAME = digitalnetindex
 PACKAGE_URL = 
-PACKAGE_VERSION = 0.2
+PACKAGE_VERSION = 0.3
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.2
+VERSION = 0.3
 abs_builddir = /Users/saito/git/mkt/DigitalNetIndex
 abs_srcdir = /Users/saito/git/mkt/DigitalNetIndex
 abs_top_builddir = /Users/saito/git/mkt/DigitalNetIndex

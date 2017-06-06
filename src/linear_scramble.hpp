@@ -164,13 +164,14 @@ double hill_climb_linear_scramble(DigitalNetNS::DigitalNet<U>& dn,
 
 template<typename U>
 void linear_scramble(DigitalNetNS::digital_net_id dnid, size_t s, size_t m,
-                     lookup_t& table)
+                     U seed, int repeat, lookup_t& table)
 {
     using namespace DigitalNetNS;
     using namespace std;
 
-    int repeat = 200;
+    //int repeat = 200;
     DigitalNet<U> dn(dnid, s, m);
+    dn.setSeed(seed);
     Bests<U> bests(10, s, m);
     //print(cout, dn, false);
     double wafom = random_linear_scramble(dn, bests, repeat, table);

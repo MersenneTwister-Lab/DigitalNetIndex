@@ -20,6 +20,7 @@
  * COPYING
  */
 #include "grayindex.hpp"
+#include "MersenneTwister64.hpp"
 #include <stdint.h>
 #include <cstring>
 #include <fstream>
@@ -27,7 +28,7 @@
 #include <iomanip>
 #include <string>
 #include <cerrno>
-#include <random>
+#include <cmath>
 
 namespace DigitalNetNS {
 
@@ -92,13 +93,15 @@ namespace DigitalNetNS {
             id = -100;
             int r = readDigitalNetHeader(is, &n, &s, &m);
             if (r != 0) {
-                throw std::runtime_error("data type mismatch!");
+                //throw std::runtime_error("data type mismatch!");
+                throw "data type mismatch!";
             }
             base = new U[s * m]();
             r = readDigitalNetData(is, n, s, m, base,
                                    &tvalue, &wafom);
             if (r != 0) {
-                throw std::runtime_error("data type mismatch!");
+                //throw std::runtime_error("data type mismatch!");
+                throw "data type mismatch!";
             }
             shift = NULL;
             point_base = NULL;
@@ -115,7 +118,8 @@ namespace DigitalNetNS {
             int r = readDigitalNetData(id, s, m, base,
                                        &tvalue, &wafom);
             if (r != 0) {
-                throw runtime_error("data type mismatch!");
+                //throw runtime_error("data type mismatch!");
+                throw "data type mismatch!";
             }
             shift = NULL;
             point_base = NULL;
@@ -316,7 +320,9 @@ namespace DigitalNetNS {
 #endif
         }
         //void showStatus(std::ostream& os);
-        void setSeed(U seed);
+        void setSeed(U seed) {
+            mt.seed(seed);
+        }
         double getWAFOM() {
             return wafom;
         }
@@ -338,7 +344,7 @@ namespace DigitalNetNS {
         double wafom;
         int tvalue;
         GrayIndex gray;
-        std::mt19937_64 mt;
+        MersenneTwister64 mt;
         U * base;
         U * point_base;
         U * shift;

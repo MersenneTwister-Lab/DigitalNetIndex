@@ -1,0 +1,28 @@
+# -*- Makefile -*-
+WARN = -Wall -Wextra
+#UNROLL = -funroll-loops
+OPTI = -O2 #-msse4.2 -mssse3 -msse2 $(UNROLL)
+#DEBUG = -DDEBUG -g -ggdb #-O0
+#DEBUG = -DDEBUG
+#SANITY = -fsanitize=address -fno-omit-frame-pointer -g
+CXX = mpicxx
+#CXX = g++
+#CXX = clang++
+#OBJS = period.o AlgorithmPrimitivity.o
+#STD = -std=c++11
+STD = -std=c++0x
+#INCLUDE = -I$(HOME)/git/MTToolbox/include
+LIB = -lMTToolBox -lntl -lgf2x
+CXXFLAGS = -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS \
+$(OPTI) $(WARN) $(STD) $(DEBUG) $(INCLUDE) $(SANITY) $(LIB)
+
+search_lowwafom_mpi: search_lowwafom_mpi.cpp sobolpoint.cpp DigitalNet.cpp \
+	cvmean.cpp calc_wafom_lookup.cpp
+	$(CXX) $(CXXFLAGS) -o $@ search_lowwafom_mpi.cpp sobolpoint.cpp \
+	DigitalNet.cpp cvmean.cpp calc_wafom_lookup.cpp
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+clean:
+	rm -rf *.o *~ *.dSYM

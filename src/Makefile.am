@@ -1,5 +1,6 @@
 digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp
+combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp \
+MersenneTwister64.hpp
 
 calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
 calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp
@@ -27,3 +28,5 @@ search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
 	linear_scramble.hpp $(calc_files)
 
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS
+
+EXTRA_DIST = Makefile.mpi

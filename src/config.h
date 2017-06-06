@@ -13,6 +13,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
+/* Define if g++ supports C++0x features. */
+#define HAVE_STDCXX_0X /**/
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
 
@@ -55,7 +58,7 @@
 #define PACKAGE_NAME "digitalnetindex"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "digitalnetindex 0.2"
+#define PACKAGE_STRING "digitalnetindex 0.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "digitalnetindex"
@@ -64,10 +67,10 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.2"
+#define PACKAGE_VERSION "0.3"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.2"
+#define VERSION "0.3"

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([digitalnetindex], [0.2], [saito@manieth.com])
+AC_INIT([digitalnetindex], [0.3], [saito@manieth.com])
 #LT_INIT
 AC_CONFIG_SRCDIR([src/Makefile.am])
 AC_CONFIG_HEADERS([src/config.h])
@@ -25,12 +25,15 @@ AC_PROG_INSTALL
 
 
 AC_LANG_PUSH(C++)
-#AX_CXX_COMPILE_STDCXX_0X
+AX_CXX_COMPILE_STDCXX_0X # my HPC Grid does not support C++11
 
-AX_CXX_COMPILE_STDCXX_14(noext, optional) // keep this order
-AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
+AX_CXX_COMPILE_STDCXX_14(noext, optional) # keep this order
+#AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
+AX_CXX_COMPILE_STDCXX_11(noext, optional) # my HPC Grid does not support C++11
 
 AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h])
+
+
 
 #AX_BOOST_BASE([1.48],,
 #[AC_MSG_ERROR([libbotev needs Boost, but it was not found in your system])])

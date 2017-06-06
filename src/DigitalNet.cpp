@@ -76,9 +76,13 @@ namespace {
         } else {
             path = cpath;
         }
+#if __cplusplus >= 201103L
         if (path.back() != '/') {
             path += "/";
         }
+#else
+        path += "/";
+#endif
         path += name;
         path += ext;
         return path;
@@ -183,17 +187,20 @@ namespace {
         FILE *fp = fopen(path.c_str(), mode);
         if (fp == NULL) {
             cerr << path.c_str() << ":" << strerror(errno) << endl;
-            throw runtime_error("can't open");
+            //throw runtime_error("can't open");
+            throw "can't open";
         }
         uint64_t dmy;
         count = fread(&dmy, sizeof(uint64_t), 1, fp);
         if (count != 1) {
             cerr << "fail to read magic number" << endl;
-            throw runtime_error("fail to read magic number");
+            //throw runtime_error("fail to read magic number");
+            throw "fail to read magic number";
         }
         if (dmy != DIGITAL_MAGIC) {
             cerr << "magic number mismatch" << endl;
-            throw runtime_error("magic number mismatch");
+            //throw runtime_error("magic number mismatch");
+            throw "magic number mismatch";
         }
         digital_net_header_t header;
         for (;;) {
@@ -201,12 +208,14 @@ namespace {
             if (count != 1) {
                 cerr << "fail to read header s = "
                      << dec << s << " m = " << m << endl;
-                throw runtime_error("can't read header");
+                //throw runtime_error("can't read header");
+                throw "can't read header";
             }
             if (header.s > s && header.m > m) {
                 cerr << "header s = " << dec << header.s << " m = " << header.m
                      << endl;
-                throw runtime_error("can't find s and m in header");
+                //throw runtime_error("can't find s and m in header");
+                throw "can't find s and m in header";
             }
             if (header.s == s && header.m == m) {
                 break;
@@ -218,13 +227,15 @@ namespace {
         count = fread(&dn, sizeof(digital_net_data_t), 1, fp);
         if (count != 1) {
             cerr << "fail to read digital net data" << endl;
-            throw runtime_error("fail to read digital net data");
+            //throw runtime_error("fail to read digital net data");
+            throw "fail to read digital net data";
         }
         uint64_t data[s * m];
         count = fread(data, size, 1, fp);
         if (count != 1) {
             cout << "fail to read digtal net array" << endl;
-            throw runtime_error("fail to read digtal net array");
+            //throw runtime_error("fail to read digtal net array");
+            throw "fail to read digtal net array";
         }
 #if defined(DEBUG)
         cout << "read_digital_net_data after read" << endl;

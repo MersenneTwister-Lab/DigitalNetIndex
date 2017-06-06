@@ -98,6 +98,7 @@ TESTS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_0x.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
 	$(top_srcdir)/m4/m4_ax_gcc_builtin.m4 \
@@ -466,15 +467,15 @@ OBJEXT = o
 PACKAGE = digitalnetindex
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = digitalnetindex
-PACKAGE_STRING = digitalnetindex 0.2
+PACKAGE_STRING = digitalnetindex 0.3
 PACKAGE_TARNAME = digitalnetindex
 PACKAGE_URL = 
-PACKAGE_VERSION = 0.2
+PACKAGE_VERSION = 0.3
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.2
+VERSION = 0.3
 abs_builddir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_srcdir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_top_builddir = /Users/saito/git/mkt/DigitalNetIndex
@@ -527,7 +528,8 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp
+combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp \
+MersenneTwister64.hpp
 
 calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
 calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp
@@ -543,6 +545,7 @@ search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
 	linear_scramble.hpp $(calc_files)
 
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS
+EXTRA_DIST = Makefile.mpi
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

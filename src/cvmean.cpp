@@ -172,14 +172,16 @@ double calc_c_for_cvmean(int s, int n)
     double c = 1.0;
     double cvmean;
     if (s <= 0) {
-        throw runtime_error("s <= 0");
+        //throw runtime_error("s <= 0");
+        throw "s <= 0";
     }
     if (s <= table_max) {
         return cv_mean_c[s];
     } else {
         int r = calc_c_and_cvmean(c, cvmean, s, n);
         if (r != 0) {
-            throw runtime_error("calc_c_and_cvmean error");
+            //throw runtime_error("calc_c_and_cvmean error");
+            throw "calc_c_and_cvmean error";
         }
         return c;
     }
