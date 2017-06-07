@@ -88,7 +88,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-apple-darwin16.6.0
 host_triplet = x86_64-apple-darwin16.6.0
-bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT)
+bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT) \
+	add_index$(EXEEXT)
 check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 	test_calc_cvmean$(EXEEXT) test_calc_wafom$(EXEEXT) \
 	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT)
@@ -114,6 +115,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = sobolpoint.$(OBJEXT) DigitalNet.$(OBJEXT)
 am__objects_2 = cvmean.$(OBJEXT) calc_wafom_lookup.$(OBJEXT)
+am_add_index_OBJECTS = add_index.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2)
+add_index_OBJECTS = $(am_add_index_OBJECTS)
+add_index_LDADD = $(LDADD)
 am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
 	$(am__objects_1) $(am__objects_2)
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
@@ -186,14 +191,16 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
-	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
-	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
-	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
-DIST_SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
-	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
-	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
-	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
+SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
+	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
+	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
+	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
+	$(test_gray_SOURCES)
+DIST_SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
+	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
+	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
+	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
+	$(test_gray_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -459,7 +466,7 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = 
+LIBS = -lsqlite3 
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /Users/saito/git/mkt/DigitalNetIndex/missing makeinfo
 MKDIR_P = /usr/local/opt/coreutils/libexec/gnubin/mkdir -p
@@ -467,15 +474,15 @@ OBJEXT = o
 PACKAGE = digitalnetindex
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = digitalnetindex
-PACKAGE_STRING = digitalnetindex 0.3
+PACKAGE_STRING = digitalnetindex 0.4
 PACKAGE_TARNAME = digitalnetindex
 PACKAGE_URL = 
-PACKAGE_VERSION = 0.3
+PACKAGE_VERSION = 0.4
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.3
+VERSION = 0.4
 abs_builddir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_srcdir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_top_builddir = /Users/saito/git/mkt/DigitalNetIndex
@@ -541,6 +548,7 @@ test_calc_wafom_SOURCES = test_calc_wafom.cpp $(digital_files) $(calc_files)
 test_calc_tvalue_SOURCES = test_calc_tvalue.cpp $(calc_files) $(digital_files)
 test_digitalnet_SOURCES = test_digitalnet.cpp $(digital_files)
 digitalnet_index_SOURCES = digitalnet_index.cpp $(digital_files) $(calc_files)
+add_index_SOURCES = add_index.cpp $(digital_files) $(calc_files)
 search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
 	linear_scramble.hpp $(calc_files)
 
@@ -641,6 +649,10 @@ clean-binPROGRAMS:
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
 
+add_index$(EXEEXT): $(add_index_OBJECTS) $(add_index_DEPENDENCIES) $(EXTRA_add_index_DEPENDENCIES) 
+	@rm -f add_index$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(add_index_OBJECTS) $(add_index_LDADD) $(LIBS)
+
 digitalnet_index$(EXEEXT): $(digitalnet_index_OBJECTS) $(digitalnet_index_DEPENDENCIES) $(EXTRA_digitalnet_index_DEPENDENCIES) 
 	@rm -f digitalnet_index$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(digitalnet_index_OBJECTS) $(digitalnet_index_LDADD) $(LIBS)
@@ -680,6 +692,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/DigitalNet.Po
+include ./$(DEPDIR)/add_index.Po
 include ./$(DEPDIR)/calc_wafom_lookup.Po
 include ./$(DEPDIR)/cvmean.Po
 include ./$(DEPDIR)/digitalnet_index.Po

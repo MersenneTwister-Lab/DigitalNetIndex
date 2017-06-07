@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([digitalnetindex], [0.3], [saito@manieth.com])
+AC_INIT([digitalnetindex], [0.4], [saito@manieth.com])
 #LT_INIT
 AC_CONFIG_SRCDIR([src/Makefile.am])
 AC_CONFIG_HEADERS([src/config.h])
@@ -33,22 +33,7 @@ AX_CXX_COMPILE_STDCXX_11(noext, optional) # my HPC Grid does not support C++11
 
 AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h])
 
-
-
-#AX_BOOST_BASE([1.48],,
-#[AC_MSG_ERROR([libbotev needs Boost, but it was not found in your system])])
-
-#AC_CHECK_HEADER(boost/numeric/ublas/vector.hpp, [], \
-#[libbotev needs Boost UBLAS vector.hpp, but it was not found in your system])
-#AC_CHECK_HEADER(boost/numeric/ublas/matrix.hpp, [], \
-#[libbotev needs Boost UBLAS matrix.hpp, but it was not found in your system])
-#AC_CHECK_HEADER(boost/numeric/ublas/io.hpp, [], \
-#[libbotev needs Boost UBLAS io.hpp, but it was not found in your system])
-#AC_CHECK_HEADER(boost/numeric/ublas/lu.hpp, [], \
-#[libbotev needs Boost UBLAS lu.hpp, but it was not found in your system])
-#AC_CHECK_HEADER(boost/numeric/ublas/triangular.hpp, [], \
-#[libbotev needs Boost UBLAS triangular.hpp, \
-#but it was not found in your system])
+AC_CHECK_LIB(sqlite3, sqlite3_open, [], [ AC_MSG_ERROR(Need sqlite3) ])
 
 AC_LANG_POP
 
@@ -56,5 +41,5 @@ AX_GCC_BUILTIN(__builtin_popcount)
 AX_GCC_BUILTIN(__builtin_popcountl)
 AX_GCC_BUILTIN(__builtin_popcountll)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile sqlite3/Makefile])
 AC_OUTPUT

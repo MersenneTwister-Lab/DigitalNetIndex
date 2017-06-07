@@ -6,8 +6,8 @@ OPTI = -O3
 CPP = g++
 #CPP = clang++
 #DEBUG = -DDEBUG
-
-CPPFLAGS = -std=c++11 $(OPTI) $(WARN) $(DEBUG)
+LIB = -lsqlite3
+CPPFLAGS = -std=c++11 $(OPTI) $(WARN) $(DEBUG) $(LIB)
 
 
 all: test_combination test_gray test_digitalnet test_calc_wafom \
@@ -36,7 +36,13 @@ test_calc_tvalue: test_calc_tvalue.cpp calc_tvalue.hpp \
 
 search_lowwafom_mpi: search_lowwafom_mpi.cpp sobolpoint.cpp DigitalNet.cpp \
 	cvmean.cpp calc_wafom_lookup.cpp
-	$(CXX) $(CXXFLAGS) -DNO_MPI -o $@ search_lowwafom_mpi.cpp sobolpoint.cpp \
+	$(CPP) $(CPPFLAGS) -DNO_MPI -o $@ search_lowwafom_mpi.cpp \
+	sobolpoint.cpp \
+	DigitalNet.cpp cvmean.cpp calc_wafom_lookup.cpp
+
+search_lowwafom: search_lowwafom.cpp sobolpoint.cpp DigitalNet.cpp \
+	cvmean.cpp calc_wafom_lookup.cpp
+	$(CPP) $(CPPFLAGS) -DNO_MPI -o $@ search_lowwafom.cpp sobolpoint.cpp \
 	DigitalNet.cpp cvmean.cpp calc_wafom_lookup.cpp
 
 .cpp.o:

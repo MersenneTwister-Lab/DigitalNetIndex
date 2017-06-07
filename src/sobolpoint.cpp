@@ -65,6 +65,7 @@
 #include <cerrno>
 #include <cstring>
 #include <stdexcept>
+#include <sqlite3.h>
 #include "sobolpoint.h"
 
 //#define DEBUG 1
@@ -80,6 +81,10 @@ namespace {
 }
 
 namespace DigitalNetNS {
+    bool select_sobol_base(const std::string& path, int bitsize,
+                           uint32_t s, uint32_t m,  uint64_t base[])
+    {
+    }
 
     bool get_sobol_base(std::istream& is,
                         uint32_t s, uint32_t m,  uint64_t base[])

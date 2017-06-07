@@ -88,7 +88,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT)
+bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT) \
+	add_index$(EXEEXT)
 check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 	test_calc_cvmean$(EXEEXT) test_calc_wafom$(EXEEXT) \
 	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT)
@@ -114,6 +115,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = sobolpoint.$(OBJEXT) DigitalNet.$(OBJEXT)
 am__objects_2 = cvmean.$(OBJEXT) calc_wafom_lookup.$(OBJEXT)
+am_add_index_OBJECTS = add_index.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2)
+add_index_OBJECTS = $(am_add_index_OBJECTS)
+add_index_LDADD = $(LDADD)
 am_digitalnet_index_OBJECTS = digitalnet_index.$(OBJEXT) \
 	$(am__objects_1) $(am__objects_2)
 digitalnet_index_OBJECTS = $(am_digitalnet_index_OBJECTS)
@@ -186,14 +191,16 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
-	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
-	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
-	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
-DIST_SOURCES = $(digitalnet_index_SOURCES) $(search_lowwafom_SOURCES) \
-	$(test_calc_cvmean_SOURCES) $(test_calc_tvalue_SOURCES) \
-	$(test_calc_wafom_SOURCES) $(test_combination_SOURCES) \
-	$(test_digitalnet_SOURCES) $(test_gray_SOURCES)
+SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
+	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
+	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
+	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
+	$(test_gray_SOURCES)
+DIST_SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
+	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
+	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
+	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
+	$(test_gray_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -541,6 +548,7 @@ test_calc_wafom_SOURCES = test_calc_wafom.cpp $(digital_files) $(calc_files)
 test_calc_tvalue_SOURCES = test_calc_tvalue.cpp $(calc_files) $(digital_files)
 test_digitalnet_SOURCES = test_digitalnet.cpp $(digital_files)
 digitalnet_index_SOURCES = digitalnet_index.cpp $(digital_files) $(calc_files)
+add_index_SOURCES = add_index.cpp $(digital_files) $(calc_files)
 search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
 	linear_scramble.hpp $(calc_files)
 
@@ -641,6 +649,10 @@ clean-binPROGRAMS:
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
 
+add_index$(EXEEXT): $(add_index_OBJECTS) $(add_index_DEPENDENCIES) $(EXTRA_add_index_DEPENDENCIES) 
+	@rm -f add_index$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(add_index_OBJECTS) $(add_index_LDADD) $(LIBS)
+
 digitalnet_index$(EXEEXT): $(digitalnet_index_OBJECTS) $(digitalnet_index_DEPENDENCIES) $(EXTRA_digitalnet_index_DEPENDENCIES) 
 	@rm -f digitalnet_index$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(digitalnet_index_OBJECTS) $(digitalnet_index_LDADD) $(LIBS)
@@ -680,6 +692,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DigitalNet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_index.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/calc_wafom_lookup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cvmean.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/digitalnet_index.Po@am__quote@

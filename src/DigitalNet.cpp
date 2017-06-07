@@ -24,12 +24,14 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <stdexcept>
 #include <stdlib.h>
 #include <cstring>
 #include <cstdio>
 #include <cerrno>
+#include <sqlite3.h>
 
 using namespace std;
 
@@ -98,6 +100,28 @@ namespace {
         }
         uint64_t data[s * m];
         bool r = get_sobol_base(ifs, s, m, data);
+        if (!r) {
+            return -1;
+        }
+        if (sizeof(U) * 8  == 32) {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = static_cast<U>((data[i] >> 32)
+                                         & UINT32_C(0xffffffff));
+            }
+        } else {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = data[i];
+            }
+        }
+        return 0;
+    }
+
+    template<typename U>
+    int selectSobolBase(const string& path, uint32_t s, uint32_t m, U base[])
+    {
+        uint64_t data[s * m];
+        int bitsize = sizeof(U) * 8;
+        bool r = select_sobol_base(path, bitsize, s, m, data);
         if (!r) {
             return -1;
         }
@@ -269,6 +293,132 @@ namespace {
         return 0;
     }
 
+    template<typename U>
+    int select_digital_net_data(digital_net_id id, uint32_t s, uint32_t m,
+                                U base[],
+                                int * tvalue, double * wafom) {
+#if defined(DEBUG)
+        cout << "in select_digital_net_data" << endl;
+#endif
+        string name = digital_net_name_data[id].abb;
+        string path = makePath("digitalnet", ".sqlite3");
+        if (id == SOBOL) {
+            return selectSobolBase(path, s, m, base);
+        }
+#if defined(DEBUG)
+        cout << "dbname = " << path << endl;
+#endif
+        int bit = sizeof(U) * 8;
+        // prepare sql
+        int r = 0;
+        sqlite3 *db;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        string strsql = "select wafom, tvalue, data";
+        strsql += " from digitalnet ";
+        strsql += " where netname = ? "; // 1
+        strsql += "and bitsize = ? ";    // 2
+        strsql += "and dimr = ? ";       // 3
+        strsql += "and dimf2 = (select min(dimf2) from digitalnet ";
+        strsql += "where netname = ? "; // 4
+        strsql += "and bitsize = ? ";   // 5
+        strsql += "and dimr = ? ";      // 6
+        strsql += "and dimf2 >= ?);";   // 7
+        sqlite3_stmt* select_sql = NULL;
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        do {
+            r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                                  -1, SQLITE_STATIC);
+            if (r != SQLITE_OK) {
+                cout << "error bind netname r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_int(select_sql, 2, bit);
+            if (r != SQLITE_OK) {
+                cout << "error bind bitsize r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_int(select_sql, 3, s);
+            if (r != SQLITE_OK) {
+                cout << "error bind dimr r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_text(select_sql, 4, name.c_str(),
+                                  -1, SQLITE_STATIC);
+            if (r != SQLITE_OK) {
+                cout << "error bind netname r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_int(select_sql, 5, bit);
+            if (r != SQLITE_OK) {
+                cout << "error bind bitsize r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_int(select_sql, 6, s);
+            if (r != SQLITE_OK) {
+                cout << "error bind dimr r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_bind_int(select_sql, 7, m);
+            if (r != SQLITE_OK) {
+                cout << "error bind dimf2 r = " << dec << r << endl;
+                cout << sqlite3_errmsg(db) << endl;
+                return r;
+            }
+            r = sqlite3_step(select_sql);
+            if (r != SQLITE_ROW) {
+                cout << "not found" << endl;
+                cout << "netname = " << name << endl;
+                return r;
+            }
+            *wafom = sqlite3_column_double(select_sql, 0);
+            *tvalue = sqlite3_column_int(select_sql, 1);
+            char * tmp = (char *)sqlite3_column_text(select_sql, 2);
+            ssbase << tmp;
+        } while (false);
+        // release sql
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return r;
+        }
+        for (size_t i = 0; i < s * m; i++) {
+            ssbase >> base[i];
+        }
+#if defined(DEBUG)
+        cout << "out select_digital_net_data" << endl;
+        cout << "base:" << endl;
+        for (size_t i = 0; i < s; i++) {
+            cout << base[i] << " ";
+        }
+        cout << endl;
+#endif
+        return 0;
+    }
+
 }
 
 namespace DigitalNetNS {
@@ -339,14 +489,16 @@ namespace DigitalNetNS {
                            uint64_t base[],
                            int * tvalue, double * wafom)
     {
-        return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        //return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        return select_digital_net_data(id, s, m, base, tvalue, wafom);
     }
 
     int readDigitalNetData(digital_net_id id, uint32_t s, uint32_t m,
                            uint32_t base[],
                            int * tvalue, double * wafom)
     {
-        return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        //return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        return select_digital_net_data(id, s, m, base, tvalue, wafom);
     }
 
 #if 0
