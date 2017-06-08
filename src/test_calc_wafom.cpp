@@ -138,8 +138,8 @@ namespace {
                 return 0;
             }
         }
-        if (argc <= 4) {
-            cout << argv[0] << " id n s m" << endl;
+        if (argc <= 5) {
+            cout << argv[0] << " id n c s m" << endl;
             return -1;
         }
         uint32_t s = strtoul(argv[4], NULL, 10);

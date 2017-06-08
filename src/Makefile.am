@@ -30,4 +30,4 @@ search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
 
 AM_CXXFLAGS = -O3 -Wall -Wextra -D__STDC_CONSTANT_MACROS
 
-EXTRA_DIST = Makefile.mpi
+EXTRA_DIST = Makefile.mpi search_lownx_mpi.cpp

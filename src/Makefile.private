@@ -5,7 +5,7 @@ WARN = -Wall -Wextra -fsanitize=address -g
 OPTI = -O3
 CPP = g++
 #CPP = clang++
-#DEBUG = -DDEBUG
+DEBUG = -DDEBUG
 LIB = -lsqlite3
 CPPFLAGS = -std=c++11 $(OPTI) $(WARN) $(DEBUG) $(LIB)
 
@@ -25,14 +25,16 @@ test_digitalnet: test_digitalnet.cpp DigitalNet.hpp DigitalNet.cpp
 test_calc_wafom: test_calc_wafom.cpp DigitalNet.hpp DigitalNet.cpp \
 	calc_wafom.hpp calc_wafom_lookup.hpp calc_wafom_lookup.cpp
 	$(CPP) $(CPPFLAGS) -o $@ test_calc_wafom.cpp DigitalNet.cpp \
-	calc_wafom_lookup.cpp
+	calc_wafom_lookup.cpp sobolpoint.cpp
 
 test_calc_cvmean: test_calc_cvmean.cpp cvmean.cpp cvmean.h
-	$(CPP) $(CPPFLAGS) -o $@ test_calc_cvmean.cpp cvmean.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_calc_cvmean.cpp cvmean.cpp \
+	sobolpoint.cpp
 
 test_calc_tvalue: test_calc_tvalue.cpp calc_tvalue.hpp \
 	DigitalNet.hpp DigitalNet.cpp
-	$(CPP) $(CPPFLAGS) -o $@ test_calc_tvalue.cpp DigitalNet.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_calc_tvalue.cpp DigitalNet.cpp \
+	sobolpoint.cpp
 
 search_lowwafom_mpi: search_lowwafom_mpi.cpp sobolpoint.cpp DigitalNet.cpp \
 	cvmean.cpp calc_wafom_lookup.cpp

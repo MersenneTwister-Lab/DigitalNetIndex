@@ -1,10 +1,11 @@
-drop table sobolbase;
-create table sobolbase (
-	name text,
-        bit int,
-        s int,
-        m int,
+drop table digitalnet;
+create table digitalnet (
+	netname text,
+        bitsize int,
+        dimr int,
+        dimf2 int,
         wafom real,
         tvalue int,
         data text,
-        primary key (name, bit, s, m));
+        primary key (netname, bitsize, dimr, dimf2)
+        );

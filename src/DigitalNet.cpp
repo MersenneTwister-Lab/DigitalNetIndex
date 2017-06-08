@@ -120,8 +120,9 @@ namespace {
     int selectSobolBase(const string& path, uint32_t s, uint32_t m, U base[])
     {
         uint64_t data[s * m];
-        int bitsize = sizeof(U) * 8;
-        bool r = select_sobol_base(path, bitsize, s, m, data);
+        //int bitsize = sizeof(U) * 8;
+        //bool r = select_sobol_base(path, bitsize, s, m, data);
+        bool r = select_sobol_base(path, s, m, data);
         if (!r) {
             return -1;
         }
