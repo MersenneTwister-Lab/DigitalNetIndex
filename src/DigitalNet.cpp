@@ -3,7 +3,7 @@
  *
  * @brief DigitalNet class for Quasi Monte-Carlo Method.
  *
- * @note Currently only 64-bit DigitalNet is implemented.
+ * @note Currently only 64-bit DigitalNet is tested.
  *
  * @author Shinsuke Mori (Hiroshima University)
  * @author Makoto Matsumoto (Hiroshima University)
@@ -40,11 +40,6 @@ using namespace std;
  */
 namespace {
     using namespace DigitalNetNS;
-    //const int N = 64;
-    //const int S_MIN = 4;
-    //const int S_MAX = 10;
-    //const int M_MIN = 10;
-    //const int M_MAX = 18;
 
     const string digital_net_path = "DIGITAL_NET_PATH";
     struct digital_net_name {
@@ -394,8 +389,16 @@ namespace {
                 cout << "netname = " << name << endl;
                 return r;
             }
-            *wafom = sqlite3_column_double(select_sql, 0);
-            *tvalue = sqlite3_column_int(select_sql, 1);
+            if (sqlite3_column_type(select_sql, 0) == SQLITE_NULL) {
+                *wafom = NAN;
+            } else {
+                *wafom = sqlite3_column_double(select_sql, 0);
+            }
+            if (sqlite3_column_type(select_sql, 1) == SQLITE_NULL) {
+                *tvalue = -1;
+            } else {
+                *tvalue = sqlite3_column_int(select_sql, 1);
+            }
             char * tmp = (char *)sqlite3_column_text(select_sql, 2);
             ssbase << tmp;
         } while (false);
@@ -404,6 +407,9 @@ namespace {
         if (r != SQLITE_OK) {
             cout << "error finalize r = " << dec << r << endl;
             cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        if (r != SQLITE_OK) {
             return r;
         }
         for (size_t i = 0; i < s * m; i++) {
@@ -420,9 +426,279 @@ namespace {
         return 0;
     }
 
+    int get_s_max(const string& path, digital_net_id id)
+    {
+        // db open
+        string name = digital_net_name_data[id].abb;
+        sqlite3 *db;
+        int r = 0;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        sqlite3_stmt *select_sql = NULL;
+        string strsql = "select max(dimr) from digitalnet ";
+        strsql += "where netname = ?;";
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                              -1, SQLITE_STATIC);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -4;
+        }
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            cout << "not found" << endl;
+            cout << "netname = " << name << endl;
+            r = sqlite3_close_v2(db);
+            return -5;
+        }
+        int s_max = sqlite3_column_int(select_sql, 0);
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        return s_max;
+    }
+
+    int get_s_min(const string& path, digital_net_id id)
+    {
+        // db open
+        string name = digital_net_name_data[id].abb;
+        sqlite3 *db;
+        int r = 0;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        sqlite3_stmt *select_sql = NULL;
+        //r = select_bind(db, &select_sql);
+        string strsql = "select min(dimr) from digitalnet ";
+        strsql += "where netname = ?;";
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                              -1, SQLITE_STATIC);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -4;
+        }
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            cout << "not found" << endl;
+            cout << "netname = " << name << endl;
+            r = sqlite3_close_v2(db);
+            return -5;
+        }
+        int s_min = sqlite3_column_int(select_sql, 0);
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        return s_min;
+    }
+
+    int get_m_max(const string& path, digital_net_id id, int s)
+    {
+        // db open
+        string name = digital_net_name_data[id].abb;
+        sqlite3 *db;
+        int r = 0;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        sqlite3_stmt *select_sql = NULL;
+        //r = select_bind(db, &select_sql);
+        string strsql = "select max(dimf2) from digitalnet ";
+        strsql += "where netname = ? and dimr = ?;";
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                              -1, SQLITE_STATIC);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -4;
+        }
+        r = sqlite3_bind_int(select_sql, 2, s);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -5;
+        }
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            cout << "not found" << endl;
+            cout << "netname = " << name << endl;
+            r = sqlite3_close_v2(db);
+            return -6;
+        }
+        int m_max = sqlite3_column_int(select_sql, 0);
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        return m_max;
+    }
+
+    int get_m_min(const string& path, digital_net_id id, int s)
+    {
+        // db open
+        string name = digital_net_name_data[id].abb;
+        sqlite3 *db;
+        int r = 0;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        sqlite3_stmt *select_sql = NULL;
+        //r = select_bind(db, &select_sql);
+        string strsql = "select min(dimf2) from digitalnet ";
+        strsql += "where netname = ? and dimr = ?;";
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                              -1, SQLITE_STATIC);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -4;
+        }
+        r = sqlite3_bind_int(select_sql, 2, s);
+        if (r != SQLITE_OK) {
+            cout << "error bind netname r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -5;
+        }
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            cout << "not found" << endl;
+            cout << "netname = " << name << endl;
+            r = sqlite3_close_v2(db);
+            return -6;
+        }
+        int m_min = sqlite3_column_int(select_sql, 0);
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        return m_min;
+    }
+
 }
 
+
 namespace DigitalNetNS {
+    int getSMax(digital_net_id id)
+    {
+        string path = makePath("digitalnet", ".sqlite3");
+        if (id == SOBOL) {
+            return get_sobol_s_max(path);
+        } else {
+            return get_s_max(path, id);
+        }
+    }
+
+    int getSMin(digital_net_id id)
+    {
+        string path = makePath("digitalnet", ".sqlite3");
+        if (id == SOBOL) {
+            return get_sobol_s_min(path);
+        } else {
+            return get_s_min(path, id);
+        }
+    }
+
+    int getMMax(digital_net_id id, int s)
+    {
+        string path = makePath("digitalnet", ".sqlite3");
+        if (id == SOBOL) {
+            return get_sobol_m_max(path, s);
+        } else {
+            return get_m_max(path, id, s);
+        }
+    }
+
+    int getMMin(digital_net_id id, int s)
+    {
+        string path = makePath("digitalnet", ".sqlite3");
+        if (id == SOBOL) {
+            return get_sobol_m_min(path, s);
+        } else {
+            return get_m_min(path, id, s);
+        }
+    }
+
     const string getDigitalNetName(uint32_t index)
     {
         if (index < digital_net_name_data_size) {
@@ -501,166 +777,4 @@ namespace DigitalNetNS {
         //return read_digital_net_data(id, s, m, base, tvalue, wafom);
         return select_digital_net_data(id, s, m, base, tvalue, wafom);
     }
-
-#if 0
-    DigitalNet<uint64_t>::DigitalNet(const digital_net_id& id,
-                                     uint32_t s,
-                                     uint32_t m)
-    {
-    }
-
-
-
-    DigitalNet<uint64_t>::~DigitalNet()
-    {
-        delete[] base;
-        delete[] shift;
-        if (point_base != NULL) {
-            delete[] point_base;
-        }
-        if (point != NULL) {
-            delete[] point;
-        }
-    }
-
-    void DigitalNet<uint64_t>::showStatus(std::ostream& os)
-    {
-        os << "n = " << N << endl;
-        os << "s = " << s << endl;
-        os << "m = " << m << endl;
-        for (uint32_t k = 0; k < m; ++k) {
-            for (uint32_t i = 0; i < s; ++i) {
-                os << "base[" << k << "][" << i << "] = "
-                   << getBase(k, i) << ' ';
-                os << ' ';
-            }
-            os << endl;
-        }
-        os << "WAFOM-value = " << wafom << endl;
-        os << "t-value = " << tvalue << endl;
-    }
-
-    void DigitalNet<uint64_t>::pointInitialize()
-    {
-        if (point_base == NULL) {
-            point_base = new uint64_t[s];
-        }
-        if (point == NULL) {
-            point = new double[s];
-        }
-        for (uint32_t i = 0; i < s; ++i) {
-            point_base[i] = getBase(0, i);
-            shift[i] = mt();
-        }
-        gray.clear();
-        count++;
-        nextPoint();
-    }
-
-    void DigitalNet<uint64_t>::nextPoint()
-    {
-        if (count == 0 ) {
-            pointInitialize();
-            return;
-        }
-        static const int get_max = 64 - 53;
-        static const double factor = exp2(-53);
-        static const double eps = exp2(-64);
-        int bit = gray.index();
-        for (uint32_t i = 0; i < s; ++i) {
-            point_base[i] ^= getBase(bit, i);
-            // shift して1を立てている
-            uint64_t tmp = (point_base[i] ^ shift[i]) >> get_max;
-            point[i] = static_cast<double>(tmp) * factor + eps;
-        }
-        if (count == (1ULL << m)) {
-            count = 0;
-        } else {
-            gray.next();
-            count++;
-        }
-    }
-#endif
-#if 0
-    void DigitalNet<uint64_t>::scramble()
-    {
-        uint64_t LowTriMat[N];
-        uint64_t tmp;
-
-        for (uint32_t i = 0; i < s; ++i) {
-            // 正則な下三角行列を作る
-            for (uint32_t j = 0; j < N; ++j) {
-                LowTriMat[j] = (mt() << (N - j - 1))
-                    | powtwo(N - j - 1);
-            }
-            for (uint32_t k = 0; k < m; ++k) {
-                tmp = INT64_C(0);
-                for (int j = 0; j < N; ++j) {
-                    int bit = innerProduct(LowTriMat[j], getBase(k, i));
-                    if (bit == 1) {
-                        tmp ^= powtwo(N - j - 1);
-                    }
-                }
-                setBase(k, i, tmp);
-            }
-        }
-    }
-#endif
-#if 0
-/*
-  指定されたi(0<=i<s)に対し, C_iのみにL_iをかける操作をする
-  ただし, L_iは下三角行列かつ正則で, 指定されたj, l(n>j>l>=0)に対し
-  第(j, l)成分(と対角成分)が1, その他が0の行列である.
-  もう一度同じL_iをC_iにかけることで元のC_iに戻る.
-  L_i(j, l)をC_iにかけると, C_iのj行にl行を足した(XOR)ものとなる.
-*/
-    void DigitalNet<uint64_t>::scramble(const int i, const int j, const int l)
-    {
-        for (uint32_t k = 0; k < m; ++k) {
-            if (getBit(getBase(k, i), N - 1 - l) == 1) {
-                setBase(k, i, getBase(k, i) ^ powtwo(N - 1 - j));
-            }
-        }
-    }
-#endif
-#if 0
-    void DigitalNet<uint64_t>::setSeed(uint64_t seed)
-    {
-        mt.seed(seed);
-    }
-
-    uint32_t DigitalNet<uint64_t>::getParameterSize()
-    {
-        return digital_net_name_data_size;
-    }
-
-    const string DigitalNet<uint64_t>::getDigitalNetConstruction(uint32_t index)
-    {
-        if (index < digital_net_name_data_size) {
-            return digital_net_name_data[index].construction;
-        } else {
-            return "";
-        }
-    }
-
-    uint32_t DigitalNet<uint64_t>::getSMax()
-    {
-        return S_MAX;
-    }
-
-    uint32_t DigitalNet<uint64_t>::getSMin()
-    {
-        return S_MIN;
-    }
-
-    uint32_t DigitalNet<uint64_t>::getMMax()
-    {
-        return M_MAX;
-    }
-
-    uint32_t DigitalNet<uint64_t>::getMMin()
-    {
-        return M_MIN;
-    }
-#endif
 }

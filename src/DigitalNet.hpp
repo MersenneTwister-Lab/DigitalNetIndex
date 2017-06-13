@@ -60,10 +60,10 @@ namespace DigitalNetNS {
                            uint32_t s, uint32_t m,
                            uint32_t base[],
                            int * tvalue, double * wafom);
-    //uint32_t getSMax();
-    //uint32_t getSMin();
-    //uint32_t getMMax();
-    //uint32_t getMMin();
+    int getSMax(digital_net_id id);
+    int getSMin(digital_net_id id);
+    int getMMax(digital_net_id id, int s);
+    int getMMin(digital_net_id id, int s);
 
     template<typename U>
     class DigitalNet {
@@ -107,6 +107,7 @@ namespace DigitalNetNS {
             point_base = NULL;
             point = NULL;
             count = 0;
+            digitalShift = false;
         }
 
         DigitalNet(const digital_net_id& id, uint32_t s, uint32_t m) {
@@ -125,6 +126,7 @@ namespace DigitalNetNS {
             point_base = NULL;
             point = NULL;
             count = 0;
+            digitalShift = false;
         }
 
         ~DigitalNet() {
@@ -161,6 +163,10 @@ namespace DigitalNetNS {
 
         double getPoint(int i) const {
             return point[i];
+        }
+
+        void setDigitalShift(bool value) {
+            digitalShift = value;
         }
 
         const double * getPoint() const {
@@ -256,7 +262,15 @@ namespace DigitalNetNS {
             }
             for (uint32_t i = 0; i < s; ++i) {
                 point_base[i] = 0;
-                shift[i] = mt();
+            }
+            if (digitalShift) {
+                for (uint32_t i = 0; i < s; ++i) {
+                    shift[i] = mt();
+                }
+            } else {
+                for (uint32_t i = 0; i < s; ++i) {
+                    shift[i] = 0;
+                }
             }
             gray.clear();
             count = 0;
@@ -343,6 +357,7 @@ namespace DigitalNetNS {
         uint64_t count;
         double wafom;
         int tvalue;
+        bool digitalShift;
         GrayIndex gray;
         MersenneTwister64 mt;
         U * base;

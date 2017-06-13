@@ -7,6 +7,7 @@
 #include <cerrno>
 #include <sqlite3.h>
 #include <cstring>
+#include <cmath>
 
 using namespace std;
 //#define DEBUG_STEP(x) do { cerr << "debug step " << x << endl;} while(0)
@@ -176,8 +177,16 @@ int selectdb(sqlite3 *db, const string& name, int bit, int s, int m,
             cout << "not found" << endl;
             break;
         }
-        dn.wafom = sqlite3_column_double(select_sql, 0);
-        dn.tvalue = sqlite3_column_int(select_sql, 1);
+        if (sqlite3_column_type(select_sql, 0) == SQLITE_NULL) {
+            dn.wafom = NAN;
+        } else {
+            dn.wafom = sqlite3_column_double(select_sql, 0);
+        }
+        if (sqlite3_column_type(select_sql, 1) == SQLITE_NULL) {
+            dn.tvalue = -1;
+        } else {
+            dn.tvalue = sqlite3_column_int(select_sql, 1);
+        }
         char * tmp = (char *)sqlite3_column_text(select_sql, 2);
         stringstream ss;
         stringstream ss2;

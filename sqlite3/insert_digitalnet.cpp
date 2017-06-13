@@ -142,6 +142,8 @@ int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
         double wafom = -1.0;
         int tvalue = -1;
         string str;
+        ss.str("");
+        ss.clear(stringstream::goodbit);
         getline(dn, str);
         if (!str.empty()) {
             ss << str;
@@ -152,13 +154,15 @@ int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
                 ss >> tvalue;
             }
         }
+        ss.str("");
+        ss.clear(stringstream::goodbit);
         DEBUG_STEP(4.3);
         r = insertdb(db, insert_sql, dataname, bit, s, m, wafom, tvalue, base);
         DEBUG_STEP(4.4);
         cout << "s,m:" << dec << s << "," << m;
         if (r != 0) {
             cout << " fail" << endl;
-            return -10;
+            //return -10;
         } else {
             cout << " success" << endl;
         }
@@ -171,6 +175,15 @@ int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
              int bit, int s, int m,
              double wafom, int tvalue, string& base)
 {
+#if defined(DEBUG)
+    cout << "dataname = " << dataname << endl;
+    cout << "bit = " << bit << endl;
+    cout << "s = " << s << endl;
+    cout << "m = " << m << endl;
+    cout << "wafom = " << wafom << endl;
+    cout << "tvalue = " << tvalue << endl;
+    cout << "base = " << base << endl;
+#endif
     DEBUG_STEP(4.31);
     int r = 0;
     r = sqlite3_reset(insert_sql);
@@ -212,7 +225,11 @@ int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
         return r;
     }
     //cout << "insertdb step 8" << endl;
-    r = sqlite3_bind_double(insert_sql, 5, wafom);
+    if (tvalue >= 0) {
+        r = sqlite3_bind_double(insert_sql, 5, wafom);
+    } else {
+        r = sqlite3_bind_null(insert_sql, 5);
+    }
     if (r != SQLITE_OK) {
         cout << "error bind wafom r = " << dec << r << endl;
         cout << sqlite3_errmsg(db) << endl;
@@ -220,7 +237,11 @@ int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
     }
     DEBUG_STEP(4.35);
     //cout << "insertdb step 9" << endl;
-    r = sqlite3_bind_int(insert_sql, 6, tvalue);
+    if (tvalue >= 0) {
+        r = sqlite3_bind_int(insert_sql, 6, tvalue);
+    } else {
+        r = sqlite3_bind_null(insert_sql, 6);
+    }
     if (r != SQLITE_OK) {
         cout << "error bind tvalue r = " << dec << r << endl;
         cout << sqlite3_errmsg(db) << endl;

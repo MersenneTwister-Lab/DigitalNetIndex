@@ -38,7 +38,12 @@ int main(int argc, char * argv[])
     int n = 64;
     static lookup_t table;
     for (int s = opt.start_s; s <= opt.end_s; s++) {
-        double c = calc_c_for_cvmean(s, n);
+        double c;
+        if (s <= 2) {
+            c = 2.0;
+        } else {
+            c = calc_c_for_cvmean(s, n);
+        }
         make_table(64, table, c);
         for (int m = opt.start_m; m <= opt.end_m; m++) {
             linear_scramble<uint64_t>(dnid, s, m, opt.seed, opt.repeat, table);

@@ -265,6 +265,66 @@ namespace DigitalNetNS {
         }
         return true;
     }
+
+    int get_sobol_s_max(const std::string& path)
+    {
+        // db open
+        sqlite3 *db;
+        int r = 0;
+        r = sqlite3_open_v2(path.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_open error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            return -1;
+        }
+        sqlite3_stmt *select_sql = NULL;
+        //r = select_bind(db, &select_sql);
+        string strsql = "select max(d) from sobolbase;";
+        stringstream ssbase;
+        r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+        if (r != SQLITE_OK) {
+            cout << "sqlite3_prepare error code = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+            r = sqlite3_close_v2(db);
+            return -2;
+        }
+        if (select_sql == NULL) {
+            cout << "sqlite3_prepare null statement" << endl;
+            r = sqlite3_close_v2(db);
+            return -3;
+        }
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            cout << "not found" << endl;
+            r = sqlite3_close_v2(db);
+            return -4;
+        }
+        int s_max = sqlite3_column_int(select_sql, 0);
+        r = sqlite3_finalize(select_sql);
+        if (r != SQLITE_OK) {
+            cout << "error finalize r = " << dec << r << endl;
+            cout << sqlite3_errmsg(db) << endl;
+        }
+        sqlite3_close_v2(db);
+        return s_max;
+    }
+
+    int get_sobol_s_min(const std::string&)
+    {
+        return 2;
+    }
+
+    int get_sobol_m_max(const std::string&, int)
+    {
+        // 2^32 は、ぎりぎり無理のはず
+        return 31;
+    }
+
+    int get_sobol_m_min(const std::string&, int)
+    {
+        return 8;
+    }
+
 }
 
 namespace {

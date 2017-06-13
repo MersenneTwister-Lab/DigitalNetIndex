@@ -92,10 +92,12 @@ bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT) \
 	add_index$(EXEEXT)
 check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 	test_calc_cvmean$(EXEEXT) test_calc_wafom$(EXEEXT) \
-	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT)
+	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT) \
+	test_maxmin$(EXEEXT) test_double$(EXEEXT)
 TESTS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
 	test_calc_cvmean$(EXEEXT) test_calc_wafom$(EXEEXT) \
-	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT)
+	test_calc_tvalue$(EXEEXT) test_digitalnet$(EXEEXT) \
+	test_maxmin$(EXEEXT) test_double$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
@@ -147,9 +149,15 @@ am_test_digitalnet_OBJECTS = test_digitalnet.$(OBJEXT) \
 	$(am__objects_1)
 test_digitalnet_OBJECTS = $(am_test_digitalnet_OBJECTS)
 test_digitalnet_LDADD = $(LDADD)
+am_test_double_OBJECTS = test_double.$(OBJEXT)
+test_double_OBJECTS = $(am_test_double_OBJECTS)
+test_double_LDADD = $(LDADD)
 am_test_gray_OBJECTS = test_gray.$(OBJEXT) $(am__objects_2)
 test_gray_OBJECTS = $(am_test_gray_OBJECTS)
 test_gray_LDADD = $(LDADD)
+am_test_maxmin_OBJECTS = test_maxmin.$(OBJEXT) $(am__objects_1)
+test_maxmin_OBJECTS = $(am_test_maxmin_OBJECTS)
+test_maxmin_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -195,12 +203,14 @@ SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
 	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
 	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
 	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
-	$(test_gray_SOURCES)
+	$(test_double_SOURCES) $(test_gray_SOURCES) \
+	$(test_maxmin_SOURCES)
 DIST_SOURCES = $(add_index_SOURCES) $(digitalnet_index_SOURCES) \
 	$(search_lowwafom_SOURCES) $(test_calc_cvmean_SOURCES) \
 	$(test_calc_tvalue_SOURCES) $(test_calc_wafom_SOURCES) \
 	$(test_combination_SOURCES) $(test_digitalnet_SOURCES) \
-	$(test_gray_SOURCES)
+	$(test_double_SOURCES) $(test_gray_SOURCES) \
+	$(test_maxmin_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -547,6 +557,8 @@ test_calc_cvmean_SOURCES = test_calc_cvmean.cpp $(calc_files)
 test_calc_wafom_SOURCES = test_calc_wafom.cpp $(digital_files) $(calc_files)
 test_calc_tvalue_SOURCES = test_calc_tvalue.cpp $(calc_files) $(digital_files)
 test_digitalnet_SOURCES = test_digitalnet.cpp $(digital_files)
+test_maxmin_SOURCES = test_maxmin.cpp $(digital_files)
+test_double_SOURCES = test_double.cpp
 digitalnet_index_SOURCES = digitalnet_index.cpp $(digital_files) $(calc_files)
 add_index_SOURCES = add_index.cpp $(digital_files) $(calc_files)
 search_lowwafom_SOURCES = search_lowwafom.cpp $(digital_files) \
@@ -681,9 +693,17 @@ test_digitalnet$(EXEEXT): $(test_digitalnet_OBJECTS) $(test_digitalnet_DEPENDENC
 	@rm -f test_digitalnet$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_digitalnet_OBJECTS) $(test_digitalnet_LDADD) $(LIBS)
 
+test_double$(EXEEXT): $(test_double_OBJECTS) $(test_double_DEPENDENCIES) $(EXTRA_test_double_DEPENDENCIES) 
+	@rm -f test_double$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_double_OBJECTS) $(test_double_LDADD) $(LIBS)
+
 test_gray$(EXEEXT): $(test_gray_OBJECTS) $(test_gray_DEPENDENCIES) $(EXTRA_test_gray_DEPENDENCIES) 
 	@rm -f test_gray$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_gray_OBJECTS) $(test_gray_LDADD) $(LIBS)
+
+test_maxmin$(EXEEXT): $(test_maxmin_OBJECTS) $(test_maxmin_DEPENDENCIES) $(EXTRA_test_maxmin_DEPENDENCIES) 
+	@rm -f test_maxmin$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_maxmin_OBJECTS) $(test_maxmin_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -703,7 +723,9 @@ include ./$(DEPDIR)/test_calc_tvalue.Po
 include ./$(DEPDIR)/test_calc_wafom.Po
 include ./$(DEPDIR)/test_combination.Po
 include ./$(DEPDIR)/test_digitalnet.Po
+include ./$(DEPDIR)/test_double.Po
 include ./$(DEPDIR)/test_gray.Po
+include ./$(DEPDIR)/test_maxmin.Po
 
 .cpp.o:
 	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -950,6 +972,20 @@ test_calc_tvalue.log: test_calc_tvalue$(EXEEXT)
 test_digitalnet.log: test_digitalnet$(EXEEXT)
 	@p='test_digitalnet$(EXEEXT)'; \
 	b='test_digitalnet'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_maxmin.log: test_maxmin$(EXEEXT)
+	@p='test_maxmin$(EXEEXT)'; \
+	b='test_maxmin'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_double.log: test_double$(EXEEXT)
+	@p='test_double$(EXEEXT)'; \
+	b='test_double'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
