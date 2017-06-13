@@ -10,16 +10,22 @@ using namespace std;
 //#define DEBUG_STEP(x) do { cerr << "debug step " << x << endl;} while(0)
 #define DEBUG_STEP(x)
 
-int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
+int import(sqlite3 *db, sqlite3_stmt* insert_sql, int id,
            const string& fname);
-int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
+int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql, int id,
              int bit, int s, int m,
              double wafom, int tvalue, string& base);
+void message(string pgm, string dbname);
+int get_id(sqlite3 * db, string& name);
 
 int main(int argc, char * argv[])
 {
     if (argc < 4) {
-        cout << argv[0] << " dbname dataname fname fname ..." << endl;
+        if (argc >= 2) {
+            message(argv[0], argv[1]);
+        } else {
+            message(argv[0], "");
+        }
         return 1;
     }
     string dbname = argv[1];
@@ -42,8 +48,13 @@ int main(int argc, char * argv[])
 
     DEBUG_STEP(2);
     // prepare sql
+    int id = get_id(db, dataname);
+    if (id < 0) {
+        message(argv[0], argv[1]);
+        return -1;
+    }
     string strsql = "insert into digitalnet (";
-    strsql += "netname, bitsize, dimr, dimf2, wafom, tvalue, data) values (";
+    strsql += "id, bitsize, dimr, dimf2, wafom, tvalue, data) values (";
     strsql += "?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* insert_sql = NULL;
     r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &insert_sql, NULL);
@@ -63,7 +74,7 @@ int main(int argc, char * argv[])
         cout << sqlite3_errmsg(db) << endl;
     }
     for (int i = 0; i < files; i++) {
-        r = import(db, insert_sql, dataname, fname[i]);
+        r = import(db, insert_sql, id, fname[i]);
         if (r != 0) {
             break;
         }
@@ -97,7 +108,7 @@ int main(int argc, char * argv[])
 }
 
 
-int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
+int import(sqlite3 *db, sqlite3_stmt* insert_sql, int id,
            const string& fname)
 {
     DEBUG_STEP(4.1);
@@ -157,7 +168,7 @@ int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
         ss.str("");
         ss.clear(stringstream::goodbit);
         DEBUG_STEP(4.3);
-        r = insertdb(db, insert_sql, dataname, bit, s, m, wafom, tvalue, base);
+        r = insertdb(db, insert_sql, id, bit, s, m, wafom, tvalue, base);
         DEBUG_STEP(4.4);
         cout << "s,m:" << dec << s << "," << m;
         if (r != 0) {
@@ -171,12 +182,12 @@ int import(sqlite3 *db, sqlite3_stmt* insert_sql, const string& dataname,
 }
 
 int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
-             const string& dataname,
+             int id,
              int bit, int s, int m,
              double wafom, int tvalue, string& base)
 {
 #if defined(DEBUG)
-    cout << "dataname = " << dataname << endl;
+    cout << "id = " << id << endl;
     cout << "bit = " << bit << endl;
     cout << "s = " << s << endl;
     cout << "m = " << m << endl;
@@ -194,8 +205,7 @@ int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
     }
     DEBUG_STEP(4.32);
     //cout << "insertdb step 4" << endl;
-    r = sqlite3_bind_text(insert_sql, 1, dataname.c_str(),
-                          -1, SQLITE_STATIC);
+    r = sqlite3_bind_int(insert_sql, 1, id);
     if (r != SQLITE_OK) {
         cout << "error bind dataname r = " << dec << r << endl;
         cout << sqlite3_errmsg(db) << endl;
@@ -272,4 +282,64 @@ int insertdb(sqlite3 *db, sqlite3_stmt* insert_sql,
         return r;
     }
     return r;
+}
+
+void message(string pgm, string dbname)
+{
+    cout << pgm << " dbname dataname fname fname ..." << endl;
+    if (dbname.empty()) {
+        return;
+    }
+    sqlite3 *db;
+    int r = sqlite3_open_v2(dbname.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
+    if (r != SQLITE_OK) {
+        cout << "sqlite3_open error code = " << dec << r << endl;
+        cout << sqlite3_errmsg(db) << endl;
+        return;
+    }
+    string strsql = "select name, longname from digitalnet_id;";
+    sqlite3_stmt* select_sql = NULL;
+    r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+    if (r != SQLITE_OK) {
+        cout << "sqlite3_prepare error code = " << dec << r << endl;
+        cout << sqlite3_errmsg(db) << endl;
+        r = sqlite3_close_v2(db);
+        return;
+    }
+    cout << "dataname is one of:" << endl;
+    for (;;) {
+        r = sqlite3_step(select_sql);
+        if (r != SQLITE_ROW) {
+            break;
+        }
+        char * name = (char *)sqlite3_column_text(select_sql, 0);
+        char * longname = (char *)sqlite3_column_text(select_sql, 1);
+        cout << name << ":" << longname << endl;
+    }
+}
+
+int get_id(sqlite3 * db, string& name)
+{
+    string strsql = "select id from digitalnet_id where name = ?;";
+    sqlite3_stmt* select_sql = NULL;
+    int r = sqlite3_prepare_v2(db, strsql.c_str(), -1, &select_sql, NULL);
+    if (r != SQLITE_OK) {
+        cout << "sqlite3_prepare error code = " << dec << r << endl;
+        cout << sqlite3_errmsg(db) << endl;
+        r = sqlite3_close_v2(db);
+        return -2;
+    }
+    r = sqlite3_bind_text(select_sql, 1, name.c_str(),
+                          name.length(), SQLITE_TRANSIENT);
+    if (r != SQLITE_OK) {
+        cout << "error bind name r = " << dec << r << endl;
+        cout << sqlite3_errmsg(db) << endl;
+        return r;
+    }
+    r = sqlite3_step(select_sql);
+    if ( r != SQLITE_ROW) {
+        return -1;
+    }
+    int id = sqlite3_column_int(select_sql, 0);
+    return id;
 }
