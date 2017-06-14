@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int main(int argc, char * argv[])
+int main()
 {
     uint64_t max = UINT64_C(0xffffffffffffffff);
     static const double eps = exp2(-65);

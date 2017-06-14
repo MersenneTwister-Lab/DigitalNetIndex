@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
         message(argv[0], argv[1]);
         return -1;
     }
-    string strsql = "insert into digitalnet (";
+    string strsql = "insert into digital_tb (";
     strsql += "id, bitsize, dimr, dimf2, wafom, tvalue, data) values (";
     strsql += "?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* insert_sql = NULL;

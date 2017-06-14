@@ -175,7 +175,7 @@ int main(int argc, char * argv[])
     int m;
     errno = 0;
     bit = strtol(argv[3], NULL, 10);
-    if (errno) {
+    if (errno || (bit != 32 && bit != 64)) {
         cout << "bit must be number 64 or 32" << endl;
         return -1;
     }

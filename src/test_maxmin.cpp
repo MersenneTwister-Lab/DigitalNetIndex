@@ -21,7 +21,7 @@ namespace {
         {0, 4, 32, 32, 32},
         {1, 2, 21201, 8, 31},
         {3, 4, 10, 10, 18},
-        {4, 4, 34, 10, 16}
+        {4, 4, 100, 10, 15}
     };
 }
 
@@ -55,6 +55,7 @@ namespace {
             if (m_min > data[i].m_min || m_max < data[i].m_max) {
                 cout << "name = " << getDigitalNetName(data[i].id) << endl;
                 cout << "id = " << data[i].id << endl;
+                cout << "s = " << s_max << endl;
                 cout << "m_min = " << m_min << " should <= "
                      << data[i].m_min << endl;
                 cout << "m_max = " << m_max << " should >= "
