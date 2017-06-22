@@ -5,7 +5,7 @@ WARN = -Wall -Wextra -fsanitize=address -g
 OPTI = -O3
 CPP = g++
 #CPP = clang++
-DEBUG = -DDEBUG
+#DEBUG = -DDEBUG
 LIB = -lsqlite3
 CPPFLAGS = -std=c++11 $(OPTI) $(WARN) $(DEBUG) $(LIB)
 
@@ -19,8 +19,10 @@ test_combination: test_combination.cpp combination.hpp
 test_gray: test_gray.cpp grayindex.hpp
 	$(CPP) $(CPPFLAGS) -o $@ test_gray.cpp
 
-test_digitalnet: test_digitalnet.cpp DigitalNet.hpp DigitalNet.cpp
-	$(CPP) $(CPPFLAGS) -o $@ test_digitalnet.cpp DigitalNet.cpp
+test_digitalnet: test_digitalnet.cpp DigitalNet.hpp DigitalNet.cpp \
+	sobolpoint.cpp
+	$(CPP) $(CPPFLAGS) -o $@ test_digitalnet.cpp DigitalNet.cpp \
+	sobolpoint.cpp
 
 test_calc_wafom: test_calc_wafom.cpp DigitalNet.hpp DigitalNet.cpp \
 	calc_wafom.hpp calc_wafom_lookup.hpp calc_wafom_lookup.cpp
@@ -46,6 +48,7 @@ search_lowwafom: search_lowwafom.cpp sobolpoint.cpp DigitalNet.cpp \
 	cvmean.cpp calc_wafom_lookup.cpp
 	$(CPP) $(CPPFLAGS) -DNO_MPI -o $@ search_lowwafom.cpp sobolpoint.cpp \
 	DigitalNet.cpp cvmean.cpp calc_wafom_lookup.cpp
+
 
 .cpp.o:
 	$(CPP) $(CPPFLAGS)  -c $<

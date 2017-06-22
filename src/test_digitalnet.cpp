@@ -21,6 +21,21 @@ int main(int argc, char * argv[])
 
 static int test_digitalnet()
 {
+    size_t s = 4;
+    size_t m = 10;
+    DigitalNet<uint64_t> dn(NX, s, m);
+    dn.pointInitialize();
+    uint64_t count = UINT64_C(1) << m;
+    for (size_t i = 0; i < count; i++) {
+        for (size_t j = 0; j < s; j++) {
+            double d = dn.getPoint(j);
+            if (d <= 0 || d >= 1) {
+                cout << "i = " << i << " j = " << j << " d = " << d << endl;
+                return -1;
+            }
+        }
+        dn.nextPoint();
+    }
     return 0;
 }
 

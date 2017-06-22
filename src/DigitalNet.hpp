@@ -251,6 +251,15 @@ namespace DigitalNetNS {
             using namespace std;
             cout << "in pointInitialize" << endl;
 #endif
+            if (sizeof(U) * 8 == 64) {
+                get_max = 64 - 53;
+                factor = exp2(-53);
+                eps = exp2(-64);
+            } else {
+                get_max = 0;
+                factor = exp2(-32);
+                eps = exp2(-33);
+            }
             if (shift == NULL) {
                 shift = new U[s]();
             }
@@ -275,7 +284,7 @@ namespace DigitalNetNS {
             gray.clear();
             count = 0;
             count++;
-            //nextPoint();
+            convertPoint();
 #if defined(DEBUG)
             cout << "out pointInitialize" << endl;
 #endif
@@ -290,18 +299,6 @@ namespace DigitalNetNS {
                 pointInitialize();
                 //return;
             }
-            int get_max;
-            double factor;
-            double eps;
-            if (sizeof(U) * 8 == 64) {
-                get_max = 64 - 53;
-                factor = exp2(-53);
-                eps = exp2(-64);
-            } else {
-                get_max = 0;
-                factor = exp2(-32);
-                eps = exp2(-33);
-            }
             int bit = gray.index();
 #if defined(DEBUG)
             cout << "bit = " << bit << endl;
@@ -313,10 +310,8 @@ namespace DigitalNetNS {
 #endif
             for (uint32_t i = 0; i < s; ++i) {
                 point_base[i] ^= getBase(bit, i);
-                // shift して1を立てている
-                uint64_t tmp = (point_base[i] ^ shift[i]) >> get_max;
-                point[i] = static_cast<double>(tmp) * factor + eps;
             }
+            convertPoint();
             if (count == (UINT64_C(1) << m)) {
                 count = 0;
                 gray.clear();
@@ -351,6 +346,13 @@ namespace DigitalNetNS {
         int getIndex(int i, int j) const {
             return i * s + j;
         }
+        void convertPoint() {
+            for (uint32_t i = 0; i < s; i++) {
+                // shift して1を立てている
+                uint64_t tmp = (point_base[i] ^ shift[i]) >> get_max;
+                point[i] = static_cast<double>(tmp) * factor + eps;
+            }
+        }
         int id;
         uint32_t s;
         uint32_t m;
@@ -358,6 +360,9 @@ namespace DigitalNetNS {
         double wafom;
         int tvalue;
         bool digitalShift;
+        int get_max;
+        double factor;
+        double eps;
         GrayIndex gray;
         MersenneTwister64 mt;
         U * base;

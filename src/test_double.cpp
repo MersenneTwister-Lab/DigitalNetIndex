@@ -15,5 +15,8 @@ int main()
         double d = static_cast<double>(tmp) * factor + eps;
         cout << i << ":" << d << endl;
     }
+    uint64_t tmp = 0;
+    double d = static_cast<double>(tmp) + eps;
+    cout << d << endl;
     return 0;
 }
