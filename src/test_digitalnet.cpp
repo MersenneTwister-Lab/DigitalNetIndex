@@ -72,6 +72,16 @@ static int output_digitalnet(int argc, char * argv[])
     if (n == 64) {
         DigitalNet<uint64_t> dn(dnid, s, m);
         print(cout, dn);
+        dn.pointInitialize();
+        const double *p;
+        for (int i = 0; i < 2; i++) {
+            p = dn.getPoint();
+            for (uint32_t j = 0; j < s; j++) {
+                cout << p[j] << " ";
+            }
+            cout << endl;
+            dn.nextPoint();
+        }
         return 0;
     } else {
         DigitalNet<uint32_t> dn(dnid, s, m);

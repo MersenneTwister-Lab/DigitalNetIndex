@@ -183,7 +183,7 @@ namespace DigitalNetNS {
         uint32_t getM() const {
             return m;
         }
-        const std::string getName() {
+        const std::string getName() const {
             if (id >= 0) {
                 return getDigitalNetName(id);
             } else {
@@ -381,6 +381,7 @@ namespace DigitalNetNS {
         int m = dn.getM();
         os << dec;
         if (verbose) {
+            os << "name = " << dn.getName() << endl;
             os << "n = " << (sizeof(T) * 8) << endl;
             os << "s = " << s << endl;
             os << "m = " << m << endl;

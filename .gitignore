@@ -30,3 +30,13 @@
 
 *.log
 *.trs
+
+# MacOS
+.DS_Store
+
+#autotools
+Makefile
+Makefile.in
+.deps/
+autom4te.cache/
+stamp-h1
