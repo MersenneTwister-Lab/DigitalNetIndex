@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include "sobolpoint.h"
 
+//#define DEBUG 1
+
 using namespace std;
 
 namespace {
@@ -41,26 +43,38 @@ namespace DigitalNetNS {
     bool get_interlaced_sobol_base(std::istream& is,
                                    uint32_t s, uint32_t m,  uint64_t base[])
     {
+#if defined(DEBUG)
+        cout << "in get_interlaced_sobol_base" << endl;
+#endif
         uint64_t tmp;
         //uint64_t x[m][s];
         for (unsigned int i = 0; i < s; i++) {
             string line;
+            if (!is) {
+#if defined(DEBUG)
+                cout << "not enough is" << endl;
+#endif
+                return false;
+            }
             getline(is, line);
             stringstream ss(line);
             for (unsigned int j = 0; j < m; j++) {
+#if defined(DEBUG)
+                cout << "(i, j) = (" << dec << i << "," << j << ")" << endl;
+#endif
+                if (!ss) {
+#if defined(DEBUG)
+                    cout << "not enough ss" << endl;
+#endif
+                    return false;
+                }
                 ss >> tmp;
 #if defined(DEBUG)
                 cout << "DEBUG:tmp = " << dec << tmp << endl;
 #endif
                 tmp = bitreverse(tmp);
                 //x[j][i] = tmp;
-                base[j * s * i] = tmp;
-                if (!ss) {
-                    return -1;
-                }
-            }
-            if (!is) {
-                return -1;
+                base[j * s + i] = tmp;
             }
         }
 #if 0
@@ -71,7 +85,10 @@ namespace DigitalNetNS {
             }
         }
 #endif
-        return 0;
+#if defined(DEBUG)
+        cout << "out get_interlaced_sobol_base" << endl;
+#endif
+        return true;
     }
 
     int get_interlaced_sobol_s_max(const std::string& path, int alpha)

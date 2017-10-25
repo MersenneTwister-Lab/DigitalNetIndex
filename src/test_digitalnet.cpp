@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cerrno>
 
+//#define DEBUG 1
+
 using namespace std;
 using namespace DigitalNetNS;
 
@@ -68,9 +70,15 @@ static int output_digitalnet(int argc, char * argv[])
     }
     uint32_t s = strtoul(argv[3], NULL, 10);
     uint32_t m = strtoul(argv[4], NULL, 10);
+#if defined(DEBUG)
+    cout << "id = " << dec << id << endl;
+#endif
     digital_net_id dnid = static_cast<digital_net_id>(id);
     if (n == 64) {
         DigitalNet<uint64_t> dn(dnid, s, m);
+#if defined(DEBUG)
+        cout << "name = " << dn.getName() << endl;
+#endif
         print(cout, dn);
         dn.pointInitialize();
         const double *p;

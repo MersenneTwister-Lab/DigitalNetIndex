@@ -17,11 +17,15 @@ namespace {
         int m_min;
         int m_max;
     };
-    check data[4] = {
+    check data[8] = {
         {0, 4, 32, 32, 32},
         {1, 2, 21201, 8, 31},
         {3, 4, 10, 10, 18},
-        {4, 4, 100, 10, 15}
+        {4, 4, 100, 10, 15},
+        {5, 2, 10600, 8, 31},
+        {6, 2, 7067, 8, 31},
+        {7, 2, 5300, 8, 31},
+        {8, 2, 4240, 8, 31}
     };
 }
 
@@ -37,7 +41,7 @@ int main(int argc, char * argv[])
 namespace {
     int test_maxmin()
     {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             digital_net_id id = static_cast<digital_net_id>(data[i].id);
             int s_min = getSMin(id);
             int s_max = getSMax(id);
@@ -68,8 +72,9 @@ namespace {
 
     int output_maxmin(int, char **)
     {
-        digital_net_id ids[] = {NX, SOBOL, NXLW, SOLW};
-        for (int i = 0; i < 4; i++) {
+        digital_net_id ids[] = {NX, SOBOL, NXLW, SOLW,
+                                ISOBOL_A2, ISOBOL_A3, ISOBOL_A4, ISOBOL_A5};
+        for (int i = 0; i < 8; i++) {
             cout << getDigitalNetName(static_cast<int>(ids[i])) << endl;
             int min_s = getSMin(ids[i]);
             int max_s = getSMax(ids[i]);
