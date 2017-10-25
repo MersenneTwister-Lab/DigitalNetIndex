@@ -115,7 +115,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = sobolpoint.$(OBJEXT) DigitalNet.$(OBJEXT)
+am__objects_1 = DigitalNet.$(OBJEXT) interlaced_sobolpoint.$(OBJEXT) \
+	sobolpoint.$(OBJEXT)
 am__objects_2 = cvmean.$(OBJEXT) calc_wafom_lookup.$(OBJEXT)
 am_add_index_OBJECTS = add_index.$(OBJEXT) $(am__objects_1) \
 	$(am__objects_2)
@@ -545,8 +546,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp \
-MersenneTwister64.hpp
+combination.hpp sobolpoint.h DigitalNet.cpp \
+MersenneTwister64.hpp interlaced_sobolpoint.cpp sobolpoint.cpp
 
 calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
 calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp
@@ -716,6 +717,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/calc_wafom_lookup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cvmean.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/digitalnet_index.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interlaced_sobolpoint.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/search_lowwafom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sobolpoint.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_calc_cvmean.Po@am__quote@

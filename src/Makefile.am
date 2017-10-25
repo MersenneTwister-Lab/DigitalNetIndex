@@ -1,6 +1,6 @@
 digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp \
-MersenneTwister64.hpp
+combination.hpp sobolpoint.h DigitalNet.cpp \
+MersenneTwister64.hpp interlaced_sobolpoint.cpp sobolpoint.cpp
 
 calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
 calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp

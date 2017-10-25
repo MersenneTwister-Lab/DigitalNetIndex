@@ -86,8 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-apple-darwin16.6.0
-host_triplet = x86_64-apple-darwin16.6.0
+build_triplet = x86_64-apple-darwin16.7.0
+host_triplet = x86_64-apple-darwin16.7.0
 bin_PROGRAMS = digitalnet_index$(EXEEXT) search_lowwafom$(EXEEXT) \
 	add_index$(EXEEXT)
 check_PROGRAMS = test_combination$(EXEEXT) test_gray$(EXEEXT) \
@@ -115,7 +115,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = sobolpoint.$(OBJEXT) DigitalNet.$(OBJEXT)
+am__objects_1 = DigitalNet.$(OBJEXT) interlaced_sobolpoint.$(OBJEXT) \
+	sobolpoint.$(OBJEXT)
 am__objects_2 = cvmean.$(OBJEXT) calc_wafom_lookup.$(OBJEXT)
 am_add_index_OBJECTS = add_index.$(OBJEXT) $(am__objects_1) \
 	$(am__objects_2)
@@ -484,15 +485,15 @@ OBJEXT = o
 PACKAGE = digitalnetindex
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = digitalnetindex
-PACKAGE_STRING = digitalnetindex 0.4
+PACKAGE_STRING = digitalnetindex 0.6
 PACKAGE_TARNAME = digitalnetindex
 PACKAGE_URL = 
-PACKAGE_VERSION = 0.4
+PACKAGE_VERSION = 0.6
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.4
+VERSION = 0.6
 abs_builddir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_srcdir = /Users/saito/git/mkt/DigitalNetIndex/src
 abs_top_builddir = /Users/saito/git/mkt/DigitalNetIndex
@@ -505,10 +506,10 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-apple-darwin16.6.0
+build = x86_64-apple-darwin16.7.0
 build_alias = 
 build_cpu = x86_64
-build_os = darwin16.6.0
+build_os = darwin16.7.0
 build_vendor = apple
 builddir = .
 datadir = ${datarootdir}
@@ -516,10 +517,10 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-apple-darwin16.6.0
+host = x86_64-apple-darwin16.7.0
 host_alias = 
 host_cpu = x86_64
-host_os = darwin16.6.0
+host_os = darwin16.7.0
 host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
@@ -545,8 +546,8 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 digital_files = DigitalNet.hpp digital.h bit_operator.h config.h \
-combination.hpp sobolpoint.h sobolpoint.cpp DigitalNet.cpp \
-MersenneTwister64.hpp
+combination.hpp sobolpoint.h DigitalNet.cpp \
+MersenneTwister64.hpp interlaced_sobolpoint.cpp sobolpoint.cpp
 
 calc_files = grayindex.hpp matrix_rank.hpp kahan.hpp calc_wafom.hpp \
 calc_wafom_lookup.hpp calc_tvalue.hpp cvmean.h cvmean.cpp calc_wafom_lookup.cpp
@@ -716,6 +717,7 @@ include ./$(DEPDIR)/add_index.Po
 include ./$(DEPDIR)/calc_wafom_lookup.Po
 include ./$(DEPDIR)/cvmean.Po
 include ./$(DEPDIR)/digitalnet_index.Po
+include ./$(DEPDIR)/interlaced_sobolpoint.Po
 include ./$(DEPDIR)/search_lowwafom.Po
 include ./$(DEPDIR)/sobolpoint.Po
 include ./$(DEPDIR)/test_calc_cvmean.Po

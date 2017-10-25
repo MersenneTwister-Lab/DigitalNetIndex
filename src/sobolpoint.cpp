@@ -266,6 +266,7 @@ namespace DigitalNetNS {
         return true;
     }
 
+#if defined(USE_SOBOL_DB)
     int get_sobol_s_max(const std::string& path)
     {
         // db open
@@ -308,6 +309,11 @@ namespace DigitalNetNS {
         sqlite3_close_v2(db);
         return s_max;
     }
+#else // USE_FILE
+    int get_sobol_s_max(const std::string&) {
+        return 21201;
+    }
+#endif
 
     int get_sobol_s_min(const std::string&)
     {
@@ -346,7 +352,6 @@ namespace {
         }
         return true;
     }
-
     bool read_data(istream& is, uint32_t data[])
     {
         is.read(reinterpret_cast<char *>(data), sizeof(uint32_t) * 3);

@@ -54,10 +54,14 @@ namespace {
         {"Sobol", "sobolbase", "Sobol"},
         {"Old_Sobol", "oldso", "Old Sobol"},
         {"NX_LowWAFOM", "nxlw", "NX+LowWAFOM, CV = (max(CV) + min(CV))/2"},
-        {"Sobol_LowWAFOM", "solw", "Sobol+LowWAFOM, CV = (max(CV) + min(CV))/2"}
+        {"Sobol_LowWAFOM", "solw", "Sobol+LowWAFOM, CV = (max(CV) + min(CV))/2"},
+        {"ISobol2", "sobol_alpha2", "Interlaced Sobol Alpha 2"},
+        {"ISobol3", "sobol_alpha3", "Interlaced Sobol Alpha 3"},
+        {"ISobol4", "sobol_alpha4", "Interlaced Sobol Alpha 4"},
+        {"ISobol5", "sobol_alpha5", "Interlaced Sobol Alpha 5"},
     };
 
-    const uint32_t digital_net_name_data_size = 5;
+    const uint32_t digital_net_name_data_size = 9;
 
     const char * getDataPath()
     {
@@ -95,6 +99,33 @@ namespace {
         }
         uint64_t data[s * m];
         bool r = get_sobol_base(ifs, s, m, data);
+        if (!r) {
+            return -1;
+        }
+        if (sizeof(U) * 8  == 32) {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = static_cast<U>((data[i] >> 32)
+                                         & UINT32_C(0xffffffff));
+            }
+        } else {
+            for (size_t i = 0; i < s * m; i++) {
+                base[i] = data[i];
+            }
+        }
+        return 0;
+    }
+
+    template<typename U>
+    int readInterlacedSobol(const string& path, uint32_t s, uint32_t m,
+                            U base[])
+    {
+        ifstream ifs(path, ios::in | ios::binary);
+        if (!ifs) {
+            cerr << "can't open:" << path << endl;
+            return -1;
+        }
+        uint64_t data[s * m];
+        bool r = get_interlaced_sobol_base(ifs, s, m, data);
         if (!r) {
             return -1;
         }
@@ -195,8 +226,17 @@ namespace {
 #endif
         string name = digital_net_name_data[id].abb;
         string path = makePath(name, ".dat");
-        if (id == SOBOL) {
+        switch (id) {
+        case SOBOL:
             return readSobolBase(path, s, m, base);
+        case ISOBOL_A2:
+        case ISOBOL_A3:
+        case ISOBOL_A4:
+        case ISOBOL_A5:
+            path = makePath(name, "_Bs53.col");
+            return readInterlacedSobol(path, s, m, base);
+        default:
+            ;
         }
 #if defined(DEBUG)
         cout << "fname = " << path << endl;
@@ -662,9 +702,18 @@ namespace DigitalNetNS {
     int getSMax(digital_net_id id)
     {
         string path = makePath("digitalnet", ".sqlite3");
-        if (id == SOBOL) {
+        switch (id) {
+        case SOBOL:
             return get_sobol_s_max(path);
-        } else {
+        case ISOBOL_A2:
+            return get_interlaced_sobol_s_max(path, 2);
+        case ISOBOL_A3:
+            return get_interlaced_sobol_s_max(path, 3);
+        case ISOBOL_A4:
+            return get_interlaced_sobol_s_max(path, 4);
+        case ISOBOL_A5:
+            return get_interlaced_sobol_s_max(path, 5);
+        default:
             return get_s_max(path, id);
         }
     }
@@ -672,9 +721,18 @@ namespace DigitalNetNS {
     int getSMin(digital_net_id id)
     {
         string path = makePath("digitalnet", ".sqlite3");
-        if (id == SOBOL) {
+        switch (id) {
+        case SOBOL:
             return get_sobol_s_min(path);
-        } else {
+        case ISOBOL_A2:
+            return get_interlaced_sobol_s_min(path, 2);
+        case ISOBOL_A3:
+            return get_interlaced_sobol_s_min(path, 3);
+        case ISOBOL_A4:
+            return get_interlaced_sobol_s_min(path, 4);
+        case ISOBOL_A5:
+            return get_interlaced_sobol_s_min(path, 5);
+        default:
             return get_s_min(path, id);
         }
     }
@@ -682,9 +740,18 @@ namespace DigitalNetNS {
     int getMMax(digital_net_id id, int s)
     {
         string path = makePath("digitalnet", ".sqlite3");
-        if (id == SOBOL) {
+        switch (id) {
+        case SOBOL:
             return get_sobol_m_max(path, s);
-        } else {
+        case ISOBOL_A2:
+            return get_interlaced_sobol_m_max(path, 2, s);
+        case ISOBOL_A3:
+            return get_interlaced_sobol_m_max(path, 3, s);
+        case ISOBOL_A4:
+            return get_interlaced_sobol_m_max(path, 4, s);
+        case ISOBOL_A5:
+            return get_interlaced_sobol_m_max(path, 5, s);
+        default:
             return get_m_max(path, id, s);
         }
     }
@@ -692,9 +759,18 @@ namespace DigitalNetNS {
     int getMMin(digital_net_id id, int s)
     {
         string path = makePath("digitalnet", ".sqlite3");
-        if (id == SOBOL) {
+        switch (id) {
+        case SOBOL:
             return get_sobol_m_min(path, s);
-        } else {
+        case ISOBOL_A2:
+            return get_interlaced_sobol_m_min(path, 2, s);
+        case ISOBOL_A3:
+            return get_interlaced_sobol_m_min(path, 3, s);
+        case ISOBOL_A4:
+            return get_interlaced_sobol_m_min(path, 4, s);
+        case ISOBOL_A5:
+            return get_interlaced_sobol_m_min(path, 5, s);
+        default:
             return get_m_min(path, id, s);
         }
     }
@@ -766,15 +842,31 @@ namespace DigitalNetNS {
                            uint64_t base[],
                            int * tvalue, double * wafom)
     {
-        //return read_digital_net_data(id, s, m, base, tvalue, wafom);
-        return select_digital_net_data(id, s, m, base, tvalue, wafom);
+        switch (id) {
+        case SOBOL:
+        case ISOBOL_A2:
+        case ISOBOL_A3:
+        case ISOBOL_A4:
+        case ISOBOL_A5:
+            return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        default:
+            return select_digital_net_data(id, s, m, base, tvalue, wafom);
+        }
     }
 
     int readDigitalNetData(digital_net_id id, uint32_t s, uint32_t m,
                            uint32_t base[],
                            int * tvalue, double * wafom)
     {
-        //return read_digital_net_data(id, s, m, base, tvalue, wafom);
-        return select_digital_net_data(id, s, m, base, tvalue, wafom);
+        switch (id) {
+        case SOBOL:
+        case ISOBOL_A2:
+        case ISOBOL_A3:
+        case ISOBOL_A4:
+        case ISOBOL_A5:
+            return read_digital_net_data(id, s, m, base, tvalue, wafom);
+        default:
+            return select_digital_net_data(id, s, m, base, tvalue, wafom);
+        }
     }
 }

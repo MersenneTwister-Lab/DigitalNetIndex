@@ -38,6 +38,10 @@ namespace DigitalNetNS {
         OLDSO = 2,
         NXLW = 3,
         SOLW = 4,
+        ISOBOL_A2 = 5,
+        ISOBOL_A3 = 6,
+        ISOBOL_A4 = 7,
+        ISOBOL_A5 = 8,
         RANDOM = -1
     };
 
