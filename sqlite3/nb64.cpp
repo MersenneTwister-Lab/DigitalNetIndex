@@ -68,7 +68,8 @@ namespace DigitalNetNS {
                 uint8_t byte = 0;
                 for (int z = 0; z < 2; z++) {
                     byte = byte << 4;
-                    byte |= hex[hexchar[k++]];
+                    int idx = hexchar[k++];
+                    byte |= hex[idx];
                 }
                 tmp = tmp << 8;
                 tmp = tmp | byte;

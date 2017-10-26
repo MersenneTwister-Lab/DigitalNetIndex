@@ -140,7 +140,7 @@ int selectdb(sqlite3 *db, int s, int m, digital_net_t& dn, uint64_t base[])
             cout << "data is null" << endl;
             break;
         }
-        int len = sqlite3_column_bytes(select_sql, 2);
+        unsigned int len = sqlite3_column_bytes(select_sql, 2);
         if (len != s * m * sizeof(uint64_t)) {
             cout << "blob size mismatch" << endl;
             break;
