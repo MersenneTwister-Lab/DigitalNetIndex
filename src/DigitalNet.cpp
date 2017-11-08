@@ -59,6 +59,10 @@ namespace {
         {"ISobol3", "sobol_alpha3", "Interlaced Sobol Alpha 3"},
         {"ISobol4", "sobol_alpha4", "Interlaced Sobol Alpha 4"},
         {"ISobol5", "sobol_alpha5", "Interlaced Sobol Alpha 5"},
+        {"ISobol2LW", "soa2lw", "Interlaced Sobol Alpha 2 Low WAFOM"},
+        {"ISobol3LW", "soa3lw", "Interlaced Sobol Alpha 3 Low WAFOM"},
+        {"ISobol4LW", "soa4lw", "Interlaced Sobol Alpha 4 Low WAFOM"},
+        {"ISobol5LW", "soa5lw", "Interlaced Sobol Alpha 5 Low WAFOM"},
     };
 
     const uint32_t digital_net_name_data_size = 9;

@@ -42,6 +42,10 @@ namespace DigitalNetNS {
         ISOBOL_A3 = 6,
         ISOBOL_A4 = 7,
         ISOBOL_A5 = 8,
+        ISOBOL_A2_LW = 9,
+        ISOBOL_A3_LW = 10,
+        ISOBOL_A4_LW = 11,
+        ISOBOL_A5_LW = 12,
         RANDOM = -1
     };
 
