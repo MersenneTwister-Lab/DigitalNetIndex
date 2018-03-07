@@ -1,5 +1,6 @@
 #include "calc_wafom.hpp"
 #include "calc_wafom_lookup.hpp"
+#include "diff_wafom.hpp"
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -13,6 +14,22 @@ using namespace DigitalNetNS;
 namespace {
     int test_wafom();
     int output_wafom(int argc, char * argv[]);
+    double max(double a, double b, double c)
+    {
+        if (a > b) {
+            if (c > a) {
+                return c;
+            } else {
+                return a;
+            }
+        } else {
+            if (c > b) {
+                return c;
+            } else {
+                return b;
+            }
+        }
+    }
     struct check {
         int id;
         int n;
@@ -125,6 +142,7 @@ namespace {
         make_table(n, table, c);
         double wafom1;
         double wafom2;
+        double wafom3;
         cout << "id = " << id << endl;
         cout << "n = " << n << endl;
         cout << "c = " << c << endl;
@@ -164,18 +182,36 @@ namespace {
             wafom1 = calc_wafom(dn, table);
             dn.pointInitialize();
             wafom2 = calc_wafom(dn, c);
+            dn.pointInitialize();
+            wafom3 = calc_wafom_diff(dn, table);
             cout << "name = " << dn.getName() << endl;
             cout << "wafom        = " << wafom2 << endl;
             cout << "wafom lookup = " << wafom1 << endl;
+            cout << "wafom diff   = " << wafom3 << endl;
+            double mx = max(wafom2, wafom1, wafom3);
+            double err = max(abs(wafom2 - wafom1), abs(wafom2 - wafom3),
+                             abs(wafom1 - wafom3));
+            cout << scientific;
+            cout << "err          = " << err << endl;
+            cout << "error ratio  = " << err / mx << endl;
             return 0;
         } else {
             DigitalNet<uint32_t> dn(dnid, s, m);
             wafom1 = calc_wafom(dn, table);
             dn.pointInitialize();
             wafom2 = calc_wafom(dn, c);
+            dn.pointInitialize();
+            wafom3 = calc_wafom_diff(dn, table);
             cout << "name = " << dn.getName() << endl;
             cout << "wafom        = " << wafom2 << endl;
             cout << "wafom lookup = " << wafom1 << endl;
+            cout << "wafom diff   = " << wafom1 << endl;
+            double mx = max(wafom2, wafom1, wafom3);
+            double err = max(abs(wafom2 - wafom1), abs(wafom2 - wafom3),
+                             abs(wafom1 - wafom3));
+            cout << scientific;
+            cout << "err          = " << err << endl;
+            cout << "error ratio  = " << err / mx << endl;
             return 0;
         }
         return 0;

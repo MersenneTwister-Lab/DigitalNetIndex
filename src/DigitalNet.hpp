@@ -254,6 +254,44 @@ namespace DigitalNetNS {
             }
         }
 
+        // noise
+        void addNoise() {
+            const size_t N = sizeof(U) * 8;
+            U tmp;
+            U mask = 0;
+            mask = ~mask >> (N - m);
+            mask = mask << (N - m);
+            for (size_t i = 0; i < s; i++) {
+                mt();
+                for (size_t k = 0; k < m; k++) {
+                    tmp = getBase(k, i);
+                    tmp &= mask;
+                    tmp |= (mt() & ~mask);
+                    setBase(k, i, tmp);
+                }
+            }
+        }
+
+        // noise
+        // depth 1 ..
+        void addNoise(int depth) {
+            const size_t N = sizeof(U) * 8;
+            U tmp;
+            U upper_mask = 0;
+            upper_mask = ~upper_mask >> (N - m - depth + 1);
+            upper_mask = upper_mask << (N - m - depth + 1);
+            for (size_t i = 0; i < s; i++) {
+                for (size_t k = 0; k < m; k++) {
+                    U lower_mask = mt() >> (N - 1);
+                    lower_mask = lower_mask << (N - m - depth);
+                    tmp = getBase(k, i);
+                    tmp &= upper_mask;
+                    tmp |= lower_mask;
+                    setBase(k, i, tmp);
+                }
+            }
+        }
+
         void pointInitialize() {
 #if defined(DEBUG)
             using namespace std;
@@ -339,6 +377,9 @@ namespace DigitalNetNS {
         //void showStatus(std::ostream& os);
         void setSeed(U seed) {
             mt.seed(seed);
+        }
+        void setSeed(uint64_t *seed, int size) {
+            mt.seed(seed, size);
         }
         double getWAFOM() {
             return wafom;

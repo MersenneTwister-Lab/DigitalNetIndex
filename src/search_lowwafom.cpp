@@ -46,40 +46,14 @@ int main(int argc, char * argv[])
         }
         make_table(64, table, c);
         for (int m = opt.start_m; m <= opt.end_m; m++) {
-            linear_scramble<uint64_t>(dnid, s, m, opt.seed, opt.repeat, table);
+            int r = linear_scramble<uint64_t>(dnid, s, m, opt.seed,
+                                              opt.repeat, table);
+            if (r < 0) {
+                return r;
+            }
         }
     }
     return 0;
-#if 0
-    DigitalNet<uint64_t> dn(dnid, s, m);
-    Bests<uint64_t> bests(10, s, m);
-    double wafom = random_linear_scramble(dn, bests, repeat, table);
-    dn.pointInitialize();
-    cout << "after random linear scramble wafom = " << wafom << endl;
-    int t = calc_tvalue(dn);
-    cout << "t = " << t << endl;
-#if 1
-    uint64_t save[s * m];
-    for (size_t i = 0; i < bests.getSize(); i++) {
-        bests.get(i, dn);
-        dn.pointInitialize();
-        double w = hill_climb_linear_scramble(dn, table);
-        cout << "w = " << w << endl;
-        dn.pointInitialize();
-        //t = calc_tvalue(dn);
-        //cout << "t = " << t << endl;
-        if (w < wafom) {
-            wafom = w;
-            dn.saveBase(save, s * m);
-        }
-    }
-#else
-    wafom = hill_climb_linear_scramble(dn, table);
-#endif
-    cout << "after hill climb linear scramble wafom = " << wafom << endl;
-    cout << "log2(wafom) = " << scientific << log2(wafom) << endl;
-    //print(cout, dn, false);
-#endif
 }
 
 static bool parse(cmd_option& opt, int argc, char * argv[])

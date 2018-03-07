@@ -3,6 +3,11 @@ digitalnet_index
 search_lowwafom
 search_lowwafom.*.txt
 search_lowwafom_mpi
+search_lowwafom32
+search_lowwafom_mpi_list2
+search_lowwafom_mpi_list3
+search_lowwafom_order
+search_lowwafom_reverse
 search_lowwafom_mpi*.txt
 test_double
 test_gray
@@ -12,6 +17,8 @@ test_calc_tvalue
 test_calc_wafom
 test_combination
 test_digitalnet
+test_bitmask
+test_sequence
 test_digital.*.txt
 test_digitalnet.*.txt
 setup.sh
