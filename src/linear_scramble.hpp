@@ -253,8 +253,8 @@ int linear_scramble(DigitalNetNS::digital_net_id dnid, size_t s, size_t m,
 #if defined(TIME_TEST)
     double consumed = clock() - start;
     cout << "#random_linear_scramble: s = " << s
-         << " m = " << m << " " << (consumed / CLOCKS_PER_SEC / 1000)
-         << "ms" << endl;
+         << " m = " << m << " " << (consumed / CLOCKS_PER_SEC)
+         << "s" << endl;
 #endif
     U save[s * m];
     for (size_t i = 0; i < bests.getSize(); i++) {
@@ -325,8 +325,8 @@ double simple_linear_scramble(DigitalNetNS::DigitalNet<U>& dn,
     double wafom = random_linear_scramble(dn, bests, repeat, table, false);
 #if defined(TIME_TEST)
     double consumed = clock() - start;
-    cout << "#random_linear_scramble:" << (consumed / CLOCKS_PER_SEC / 1000)
-         << "ms" << endl;
+    cout << "#random_linear_scramble:" << (consumed / CLOCKS_PER_SEC)
+         << "s" << endl;
 #endif
     bests.get(0, dn);
 #if defined(DEBUG)
@@ -346,8 +346,8 @@ double simple_linear_scramble(DigitalNetNS::DigitalNet<U>& dn,
     wafom = hill_climb_linear_scramble<U>(dn, table);
 #if defined(TIME_TEST)
     consumed = clock() - start;
-    cout << "#hill_climb_linear_scramble:" << (consumed / CLOCKS_PER_SEC / 1000)
-         << "ms" << endl;
+    cout << "#hill_climb_linear_scramble:" << (consumed / CLOCKS_PER_SEC)
+         << "s" << endl;
 #endif
 #if defined(DEBUG)
     t = calc_tvalue(dn);
@@ -379,8 +379,8 @@ double simple_linear_scramble_diff(DigitalNetNS::DigitalNet<U>& dn,
     double wafom = random_linear_scramble(dn, bests, repeat, table, false);
 #if defined(TIME_TEST)
     double consumed = clock() - start;
-    cout << "random_linear_scramble:" << (consumed / CLOCKS_PER_SEC / 1000)
-         << "ms" << endl;
+    cout << "random_linear_scramble:" << (consumed / CLOCKS_PER_SEC)
+         << "s" << endl;
 #endif
     bests.get(0, dn);
 #if defined(DEBUG)
@@ -400,8 +400,8 @@ double simple_linear_scramble_diff(DigitalNetNS::DigitalNet<U>& dn,
     wafom = hill_climb_linear_scramble_diff<U>(dn, table);
 #if defined(TIME_TEST)
     consumed = clock() - start;
-    cout << "hill_climb_linear_scramble:" << (consumed / CLOCKS_PER_SEC / 1000)
-         << "ms" << endl;
+    cout << "hill_climb_linear_scramble:" << (consumed / CLOCKS_PER_SEC)
+         << "s" << endl;
 #endif
 #if defined(DEBUG)
     t = calc_tvalue(dn);
